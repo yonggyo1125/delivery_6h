@@ -21,6 +21,27 @@ spring:
       open-in-view: false
       generate-ddl: true
 
+    # 시큐리티 - oauth2설정
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            issuer-uri: https://keycloak.code-factory.co.kr/realms/codefactory
+        client:
+          registration:
+            keycloak:
+              client-id: ${KEYCLOAK_CLIENT_ID}
+              client-secret: ${KEYCLOAK_CLIENT_SECRET}
+              authorization-grant-type: authorization_code
+              redirect-uri: "http://localhost:3000/v1/user/authorization/code"
+              scope:
+                - openid
+                - profile
+                - email
+          provider:
+            keycloak:
+              issuer-uri: https://keycloak.code-factory.co.kr/realms/codefactory
+
   # OPEN AI 설정
   ai:
     openai:
