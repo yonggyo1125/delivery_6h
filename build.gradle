@@ -44,8 +44,9 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-starter-model-openai' // Spring AI - Open AI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13' // Swagger API
     compileOnly 'org.projectlombok:lombok'
-
     annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // 스프링 Data JPA + QueryDSL 의존성 S
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -58,6 +59,10 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'com.h2database:h2' // 테스트시에는 메모리기반 H2 데이터베이스 사용
     // 스프링 Data JPA + QueryDSL 의존성 S
+
+    // MapStruct
+    implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
