@@ -2,18 +2,17 @@ package org.sparta.delivery.user.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @ToString
 @Getter
 @Embeddable
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserId {
+public class UserId implements Serializable {
     @Column(length=45, name="user_id")
     private UUID id;
 
