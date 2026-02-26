@@ -69,7 +69,13 @@ public class Product extends BaseUserEntity {
         options.add(new ProductOption(name, price));
     }
 
-    private void removeOptions(int index) {
+    // 옵션 여러개 삭제
 
+
+    // 옵션 한개 삭제
+    private void removeOption(int index) {
+        if (options != null) {
+            options.remove(index);
+        }
     }
 }
