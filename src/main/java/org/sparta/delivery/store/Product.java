@@ -5,6 +5,7 @@ import lombok.*;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,6 +32,15 @@ public class Product extends BaseUserEntity {
             @AttributeOverride(name="value", column = @Column(name="price"))
     )
     private Price price;
+
+    // 옵션 - 1:N 관계
+    @ElementCollection(fetch=FetchType.LAZY)
+    @CollectionTable(name="P_PRODUCT_OPTION", joinColumns = {
+            @JoinColumn(name="store_id"),
+            @JoinColumn(name="product_idx")
+    })
+    @OrderColumn(name="option_idx")
+    private List<ProductOption> options;
 
     @Builder
     protected Product(UUID categoryId, String name, int price) {
