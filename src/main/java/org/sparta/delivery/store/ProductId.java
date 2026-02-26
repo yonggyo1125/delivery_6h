@@ -1,18 +1,16 @@
 package org.sparta.delivery.store;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
-import java.util.UUID;
 
-@Getter
 @ToString
+@Getter
 @Embeddable
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class StoreCategory {
-
-    @Column(length=45, name="category_id", nullable = false)
-    private UUID categoryId;
+public class ProductId {
+    private StoreId storeId;
+    private int productIdx;
 }

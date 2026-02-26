@@ -32,4 +32,10 @@ public class Store extends BaseUserEntity {
     @CollectionTable(name = "P_STORE_CATEGORY", joinColumns = @JoinColumn(name="store_id"))
     @OrderColumn(name="category_idx")
     private List<StoreCategory> categories;
+
+    // 매장 메뉴 - 1:N 관계
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "P_PRODUCT", joinColumns = @JoinColumn(name="store_id"))
+    @OrderColumn(name="product_idx")
+    private List<Product> products;
 }

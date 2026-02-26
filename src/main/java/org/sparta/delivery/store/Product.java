@@ -15,9 +15,13 @@ import java.util.UUID;
  */
 @Getter
 @ToString
-@Embeddable
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseUserEntity {
+
+    @EmbeddedId
+    private ProductId id;
+
     @Embedded
     private StoreCategory category;
 
