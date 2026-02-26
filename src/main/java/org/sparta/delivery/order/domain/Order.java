@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ * 0. 주문은 반드시 회원의 권한을 가진 사용자만 가능
  * 1. 주문 상품이 1개 이상이어야 주문이 가능
  * 2. 주문 상품의 총 금액은 주문상품 목록을 통해서만 계산된다.
  * 3. 주문 취소는 주문 접수 후 5분 이내 가능
@@ -76,6 +77,7 @@ public class Order extends BaseUserEntity {
     // 주문 접수
     public void  orderAccept() {
         this.status = OrderStatus.ORDER_ACCEPT;
+
 
         // 주문 접수 후 이벤트 발생 시키기 - 메일 전송
         Events.trigger(new OrderAcceptEvent(id.getId()));

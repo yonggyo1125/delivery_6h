@@ -8,7 +8,6 @@ import java.util.UUID;
 
 @Embeddable
 @ToString @Getter
-@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderId {

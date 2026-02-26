@@ -19,6 +19,7 @@ import java.util.UUID;
 public class CreateOrderService {
     private final OrderRepository orderRepository;
 
+    // MapStruct 라이브러, ModelMapper
     @PreAuthorize("hasRole('USER')")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public UUID create(OrderInfoDto orderInfo, List<OrderItemDto> items) {
@@ -35,7 +36,7 @@ public class CreateOrderService {
                 .orderItems(orderItems)
                 .build();
 
-        // 주문 접수 상태 변경
+        // 주문 접수 상태 변경 - 도메인 로직
         order.orderAccept();
 
         orderRepository.save(order);

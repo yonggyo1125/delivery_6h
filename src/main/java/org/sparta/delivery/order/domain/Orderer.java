@@ -9,7 +9,6 @@ import java.util.UUID;
 @Getter
 @ToString
 @Embeddable
-@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Orderer {
     @Column(length=45, name="orderer_id", nullable = false)
