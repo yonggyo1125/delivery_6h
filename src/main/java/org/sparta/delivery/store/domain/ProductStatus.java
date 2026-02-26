@@ -1,4 +1,4 @@
-package org.sparta.delivery.store;
+package org.sparta.delivery.store.domain;
 
 public enum ProductStatus {
     READY, // 준비중

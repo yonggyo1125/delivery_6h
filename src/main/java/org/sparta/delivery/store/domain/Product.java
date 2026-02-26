@@ -1,4 +1,4 @@
-package org.sparta.delivery.store;
+package org.sparta.delivery.store.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

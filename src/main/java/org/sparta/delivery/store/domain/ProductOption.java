@@ -1,8 +1,10 @@
-package org.sparta.delivery.store;
+package org.sparta.delivery.store.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.sparta.delivery.global.domain.Price;
+
+import java.util.List;
 
 @Getter
 @ToString
@@ -11,6 +13,18 @@ import org.sparta.delivery.global.domain.Price;
 public class ProductOption {
     @Column(length=65)
     private String name; // 옵션명
+
+    /*
+    [
+        {"name": "매운맛", "addPrice": 2000},
+        {"name": "순한맛", "addPrice": 0}.
+        ...
+     ]
+    */
+    @Lob
+    @Column(name="sub_options")
+    private List<ProductSubOption> subOptions; // 하위 옵션
+
 
     @AttributeOverrides(
             @AttributeOverride(name="value", column = @Column(name="price"))
