@@ -11,7 +11,7 @@ public class OrderTest {
 //        List<OrderItem> items = order.getItems();
 //        items.get(0).setPrice(....)
 //
-//        order.setTotalOrderPrice(...)
+//        //order.setTotalOrderPrice(...)
 //        // Order의 totalOrderPrice는 변경? X
     }
 }
