@@ -5,13 +5,16 @@ import lombok.*;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  * 상품 등록 및 수정시 분류는 매장에 등록된 분류에 있는지 체크
  * 상품 상태는 준비중, 판매중, 품절이 있으며, 준비중 상태에서는 상품은 미노출, 품절은 노출되지만 주문에 제한이 있음
  * 상품 등록시 기본값은 상품 준비중
+ * 옵션은 상품을 통해서 등록, 수정, 삭제 가능
  */
 @Getter
 @ToString
@@ -52,5 +55,21 @@ public class Product extends BaseUserEntity {
         this.name = name;
         this.price = new Price(price);
         this.status = ProductStatus.READY;
+    }
+
+    // 옵션 등록
+    private void addOptions(List<ProductOption> options) {
+        options = Objects.requireNonNullElseGet(options, ArrayList::new);
+        options.addAll(new ArrayList<>(options));
+    }
+
+    // 옵션 한개 등록
+    private void addOption(String name, int price) {
+        options = Objects.requireNonNullElseGet(options, ArrayList::new);
+        options.add(new ProductOption(name, price));
+    }
+
+    private void removeOptions(int index) {
+
     }
 }
