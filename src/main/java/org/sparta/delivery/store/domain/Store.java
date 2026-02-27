@@ -38,11 +38,14 @@ public class Store extends BaseUserEntity {
 
 
     // 운영 요일 및 시간 - 1:N 관계
-
+    @ElementCollection(fetch=FetchType.LAZY)
+    @CollectionTable(name="P_STORE_OPERATION", joinColumns=@JoinColumn(name="store_id"))
+    @OrderColumn(name="operation_idx")
+    private List<StoreOperation> operations;
 
     // 매장 분류 - 1:N 관계
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "P_STORE_CATEGORY", joinColumns = @JoinColumn(name="store_id"))
+    @ElementCollection(fetch=FetchType.LAZY)
+    @CollectionTable(name="P_STORE_CATEGORY", joinColumns=@JoinColumn(name="store_id"))
     @OrderColumn(name="category_idx")
     private List<StoreCategory> categories;
 

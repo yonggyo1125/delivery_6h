@@ -1,5 +1,6 @@
 package org.sparta.delivery.store.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
@@ -17,6 +18,8 @@ public class StoreOperation {
     private LocalTime startHour; // 시작 시간
     private LocalTime endHour; // 종료 시간
 
+    @Column(length=20)
     private BreakTime breakHour1; // 휴식 시간1
+    @Column(length=20)
     private BreakTime breakHour2; // 휴식 시간2
 }
