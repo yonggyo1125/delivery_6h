@@ -9,7 +9,12 @@ import org.sparta.delivery.global.presentation.exception.UnAuthorizedException;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 
-import java.util.*;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * 모든 기능은 매장 주인(OWNER)와 관리자(MANAGER, MASTER)만 가능
@@ -77,9 +82,16 @@ public class Store extends BaseUserEntity {
         // 분류 추가
         createCategory(roleCheck, ownerCheck, categoryIds);
     }
+    //// 운영 요일 및 시간 S
+    // 생성
+    public void createOperation(RoleCheck roleCheck, OwnerCheck ownerCheck, DayOfWeek dayOfWeek, LocalTime startHour, LocalTime endHour) {
+
+     }
+
+    ////운영 요일 및 시간  E
 
     ////  상품 S
-    // 상품 추가
+    // 상품 생성
     public void createProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, UUID categoryId, String name, int price, List<ProductOption> options) {
         // 권한 체크
         checkPossible(roleCheck, ownerCheck);
@@ -94,7 +106,7 @@ public class Store extends BaseUserEntity {
     }
 
     // 상품 수정
-    public void updateProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, int productIdx, UUID categoryId, String name, int price, List<ProductOption> options ) {
+    public void changeProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, int productIdx, UUID categoryId, String name, int price, List<ProductOption> options ) {
         // 권한 체크
         checkPossible(roleCheck, ownerCheck);
         if (products == null || products.get(productIdx) == null) {
@@ -126,7 +138,7 @@ public class Store extends BaseUserEntity {
     ////  상품 E
 
     ///// 카테고리 S
-    // 카테고리 추가
+    // 카테고리 생성
     public void createCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
         // 권한 체크
         checkPossible(roleCheck, ownerCheck);
