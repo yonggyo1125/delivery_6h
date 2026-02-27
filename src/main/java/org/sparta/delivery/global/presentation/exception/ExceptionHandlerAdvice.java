@@ -31,8 +31,8 @@ public class ExceptionHandlerAdvice {
             status = statusCodeException.getStatusCode();
 
             // 직접 정의한 예외인 경우
-            if (e instanceof BadRequestException badRequestException && StringUtils.hasText(badRequestException.getField())) {
-                message = Map.of(badRequestException.getField(), message);
+            if (e instanceof CustomException CustomException && StringUtils.hasText(CustomException.getField())) {
+                message = Map.of(CustomException.getField(), message);
             }
 
         } else if (e instanceof MethodArgumentNotValidException validException) {

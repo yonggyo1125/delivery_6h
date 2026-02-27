@@ -3,9 +3,12 @@ package org.sparta.delivery.store.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.sparta.delivery.global.domain.BaseUserEntity;
+import org.sparta.delivery.global.domain.service.AddressToCoords;
+import org.sparta.delivery.global.domain.service.RoleCheck;
+import org.sparta.delivery.global.presentation.exception.UnAuthorizedException;
+import org.sparta.delivery.store.domain.service.OwnerCheck;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 모든 기능은 매장 주인(OWNER)와 관리자(MANAGER, MASTER)만 가능
@@ -60,12 +63,60 @@ public class Store extends BaseUserEntity {
 
 
     @Builder
-    public Store(UUID storeId, UUID ownerId, String ownerName, String landline, String email, String address, List<UUID> categoryIds) {
+    public Store(UUID storeId, UUID ownerId, String ownerName, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck) {
+
+        // 등록 권한 체크
+        checkPossible(roleCheck, ownerCheck);
+
         this.id = storeId == null ? StoreId.of() : StoreId.of(storeId);
         this.owner = new Owner(ownerId, ownerName);
         this.contact = new StoreContact(landline, email);
-
-
+        this.location = new StoreLocation(address, addressToCoords);
         this.status = StoreStatus.PREPARING;
+
+        // 분류 추가
+        addCategory(roleCheck, ownerCheck, categoryIds);
+    }
+
+    // 카테고리 추가
+    public void addCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
+        // 권한 체크
+        checkPossible(roleCheck, ownerCheck);
+        if (categoryIds == null || categoryIds.isEmpty()) return;
+
+        categories = Objects.requireNonNullElseGet(categories, ArrayList::new);
+        categories.addAll(categoryIds.stream().distinct().map(StoreCategory::new).toList());
+    }
+
+    public void addCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, UUID categoryId) {
+        addCategory(roleCheck, ownerCheck, List.of(categoryId));
+    }
+
+    // 카테고리 모두 지우기
+    public void truncateCategory(RoleCheck roleCheck, OwnerCheck ownerCheck) {
+        // 권한 체크
+        checkPossible(roleCheck, ownerCheck);
+        categories = null;
+    }
+
+    // 카테고리 교체
+    public void replaceCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
+        truncateCategory(roleCheck,ownerCheck);
+        addCategory(roleCheck, ownerCheck, categoryIds);
+    }
+
+    // 카테고리 제거
+   // public void removeCategory()
+
+    /**
+     * 모든 기능은 매장 주인(OWNER)와 관리자(MANAGER, MASTER)만 가능
+     * storeId가 null 이라면 신규 등록이므로 ONWER 권한이 있는지만 체크,
+     *          null이 아니라면 storeId로 매장의 소유자인지 체크
+     */
+    private void checkPossible(RoleCheck roleCheck, OwnerCheck ownerCheck) {
+
+        if (!roleCheck.hasRole(List.of("MASTER", "MASTER")) && !ownerCheck.isOwner(id.getId())) {
+            throw new UnAuthorizedException();
+        }
     }
 }
