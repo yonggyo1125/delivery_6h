@@ -26,6 +26,9 @@ public class Product extends BaseUserEntity {
     @EmbeddedId
     private ProductId id;
 
+    @Version
+    private int version;
+
     @Column(length=30, unique = true, nullable = false)
     private String productCode; // 상품 관리 코드
 
