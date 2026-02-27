@@ -43,7 +43,6 @@ public class OrderController {
                 .toList();
 
         UUID orderId = createService.create(orderInfo, items);
-
         return new CreateOrderResponse(orderId);
     }
 }
