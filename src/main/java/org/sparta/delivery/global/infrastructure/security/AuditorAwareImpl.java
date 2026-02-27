@@ -18,6 +18,6 @@ public class AuditorAwareImpl implements AuditorAware<String> {
             username = jwt.getClaim("preferred_username");
         }
 
-        return Optional.ofNullable(username);
+        return Optional.ofNullable(username); //
     }
 }
