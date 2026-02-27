@@ -27,6 +27,19 @@ public class Store extends BaseUserEntity {
     @Embedded
     private Owner owner;
 
+    @Column(length=65, name="store_name")
+    private String name; // 매장명
+
+    @Embedded
+    private StoreContact contact; // 매장 연락처
+
+    @Embedded
+    private StoreLocation location; // 매장 위치
+
+
+    // 운영 요일 및 시간 - 1:N 관계
+
+
     // 매장 분류 - 1:N 관계
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "P_STORE_CATEGORY", joinColumns = @JoinColumn(name="store_id"))
@@ -38,4 +51,6 @@ public class Store extends BaseUserEntity {
     @CollectionTable(name = "P_PRODUCT", joinColumns = @JoinColumn(name="store_id"))
     @OrderColumn(name="product_idx")
     private List<Product> products;
+
+
 }
