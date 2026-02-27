@@ -40,16 +40,6 @@ public class Product extends BaseUserEntity {
     )
     private Price price; // 상품가
 
-    @AttributeOverrides(
-            @AttributeOverride(name="value", column = @Column(name="option_price"))
-    )
-    private Price optionPrice; // 옵션가 합계
-
-    @AttributeOverrides(
-            @AttributeOverride(name="value", column = @Column(name="total_price"))
-    )
-    private Price totalPrice; // 총 합계
-
     // 옵션 - 1:N 관계
     @ElementCollection(fetch=FetchType.LAZY)
     @CollectionTable(name="P_PRODUCT_OPTION", joinColumns = {
@@ -65,23 +55,8 @@ public class Product extends BaseUserEntity {
         this.name = name;
         this.price = new Price(price);
         this.status = ProductStatus.READY;
-
-        // 상품 금액 계산
-        calculatePrice(options);
+        this.options = options;
     }
-
-
-    // 금액 계산
-    private void calculatePrice(List<ProductOption> options) {
-        int optionPrice = 0;
-        if (options != null) {
-            optionPrice = options.stream().mapToInt(o -> o.getPrice().getValue()).sum();
-        }
-
-        this.optionPrice = new Price(optionPrice); // 옵션가 합계
-        this.totalPrice = price.add(this.optionPrice); // 총 합계
-    }
-
 
     // 옵션 등록
     public void addOptions(List<ProductOption> options) {
@@ -91,8 +66,12 @@ public class Product extends BaseUserEntity {
 
     // 옵션 한개 등록
     public void addOption(String name, int price) {
+        addOption(name, price, null);
+    }
+
+    public void addOption(String name, int price, List<ProductSubOption> subOptions) {
         options = Objects.requireNonNullElseGet(options, ArrayList::new);
-        options.add(new ProductOption(name, price));
+        options.add(new ProductOption(name, price, subOptions));
     }
 
     // 옵션 여러개 삭제

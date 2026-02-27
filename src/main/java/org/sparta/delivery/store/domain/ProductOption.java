@@ -32,8 +32,9 @@ public class ProductOption {
     private Price price; // 옵션 추가 금액
 
     @Builder
-    public ProductOption(String name, int price) {
+    public ProductOption(String name, int price, List<ProductSubOption> subOptions) {
         this.name = name;
         this.price = new Price(price);
+        this.subOptions = subOptions;
     }
 }
