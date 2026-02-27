@@ -27,7 +27,7 @@ public class Product extends BaseUserEntity {
     private ProductId id;
 
     @Version
-    private int version;
+    private int version; // 낙관적 Lock
 
     @Column(length=30, unique = true, nullable = false)
     private String productCode; // 상품 관리 코드

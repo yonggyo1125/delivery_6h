@@ -129,7 +129,7 @@ public class Store extends BaseUserEntity {
         operations.addAll(remaining);
     }
 
-    ////운영 요일 및 시간  E
+    //// 운영 요일 및 시간  E
 
     ////  상품 S
     // 상품 생성
@@ -278,6 +278,7 @@ public class Store extends BaseUserEntity {
     public boolean isVisible() {
         return status == StoreStatus.OPEN || status == StoreStatus.PREPARING;
     }
+
     /**
      * 모든 기능은 매장 주인(OWNER)와 관리자(MANAGER, MASTER)만 가능
      * storeId가 null 이라면 신규 등록이므로 ONWER 권한이 있는지만 체크,
