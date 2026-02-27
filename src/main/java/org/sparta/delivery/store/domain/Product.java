@@ -50,8 +50,8 @@ public class Product extends BaseUserEntity {
     // 옵션 - 1:N 관계
     @ElementCollection(fetch=FetchType.LAZY)
     @CollectionTable(name="P_PRODUCT_OPTION", joinColumns = {
-            @JoinColumn(name="store_id", referencedColumnName="storeId"),
-            @JoinColumn(name="product_idx", referencedColumnName="productIdx")
+            @JoinColumn(name="store_id"),
+            @JoinColumn(name="product_idx")
     })
     @OrderColumn(name="option_idx")
     private List<ProductOption> options;

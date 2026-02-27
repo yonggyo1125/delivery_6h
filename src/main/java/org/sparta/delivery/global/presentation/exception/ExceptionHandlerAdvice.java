@@ -1,5 +1,6 @@
 package org.sparta.delivery.global.presentation.exception;
 
+import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -47,6 +49,9 @@ public class ExceptionHandlerAdvice {
             status = HttpStatus.BAD_REQUEST;
             message = messageUtils.getMessage("MISSING.BODY");
 
+        } else if (e instanceof OptimisticLockException || e instanceof ObjectOptimisticLockingFailureException) {
+            status = HttpStatus.CONFLICT; // 409 Conflict 권장
+            message = messageUtils.getMessage("CONCURRENCY.ERROR");
         }
 
         log.error("HTTP ERROR", e);
