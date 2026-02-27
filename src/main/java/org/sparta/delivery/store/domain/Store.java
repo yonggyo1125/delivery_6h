@@ -6,6 +6,7 @@ import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.global.presentation.exception.UnAuthorizedException;
+import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 
 import java.util.*;
@@ -61,7 +62,6 @@ public class Store extends BaseUserEntity {
     private List<Product> products;
 
 
-
     @Builder
     public Store(UUID storeId, UUID ownerId, String ownerName, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck) {
 
@@ -75,11 +75,59 @@ public class Store extends BaseUserEntity {
         this.status = StoreStatus.PREPARING;
 
         // 분류 추가
-        addCategory(roleCheck, ownerCheck, categoryIds);
+        createCategory(roleCheck, ownerCheck, categoryIds);
     }
 
+    ////  상품 S
+    // 상품 추가
+    public void createProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, UUID categoryId, String name, int price, List<ProductOption> options) {
+        // 권한 체크
+        checkPossible(roleCheck, ownerCheck);
+        products = Objects.requireNonNullElseGet(products, ArrayList::new);
+
+        products.add(Product.builder()
+                        .categoryId(categoryId)
+                        .name(name)
+                        .price(price)
+                        .options(options)
+                    .build());
+    }
+
+    // 상품 수정
+    public void updateProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, int productIdx, UUID categoryId, String name, int price, List<ProductOption> options ) {
+        // 권한 체크
+        checkPossible(roleCheck, ownerCheck);
+        if (products == null || products.get(productIdx) == null) {
+            throw new ProductNotFoundException();
+        }
+
+        products.set(productIdx, Product.builder()
+                        .categoryId(categoryId)
+                        .name(name)
+                        .price(price)
+                        .options(options)
+                .build());
+    }
+
+    // 상품 삭제
+    public void removeProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, List<Integer> productIdxes) {
+        checkPossible(roleCheck, ownerCheck);
+        if (products == null) return;
+
+        List<Product> newProducts = new ArrayList<>();
+        for (int i = 0; i < products.size(); i++) {
+            if (!productIdxes.contains(i)) {
+                newProducts.add(products.get(i));
+            }
+        }
+
+        products = newProducts;
+    }
+    ////  상품 E
+
+    ///// 카테고리 S
     // 카테고리 추가
-    public void addCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
+    public void createCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
         // 권한 체크
         checkPossible(roleCheck, ownerCheck);
         if (categoryIds == null || categoryIds.isEmpty()) return;
@@ -88,8 +136,8 @@ public class Store extends BaseUserEntity {
         categories.addAll(categoryIds.stream().distinct().map(StoreCategory::new).toList());
     }
 
-    public void addCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, UUID categoryId) {
-        addCategory(roleCheck, ownerCheck, List.of(categoryId));
+    public void createCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, UUID categoryId) {
+        createCategory(roleCheck, ownerCheck, List.of(categoryId));
     }
 
     // 카테고리 모두 지우기
@@ -102,11 +150,19 @@ public class Store extends BaseUserEntity {
     // 카테고리 교체
     public void replaceCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
         truncateCategory(roleCheck,ownerCheck);
-        addCategory(roleCheck, ownerCheck, categoryIds);
+        createCategory(roleCheck, ownerCheck, categoryIds);
     }
 
     // 카테고리 제거
-   // public void removeCategory()
+    public void removeCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
+        // 권한 체크
+        checkPossible(roleCheck, ownerCheck);
+        if (categories == null) return;
+
+        categories = categories.stream().filter(c -> !categoryIds.contains(c.getCategoryId())).toList();
+    }
+    ///// 카테고리 E
+
 
     /**
      * 모든 기능은 매장 주인(OWNER)와 관리자(MANAGER, MASTER)만 가능

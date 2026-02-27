@@ -59,17 +59,17 @@ public class Product extends BaseUserEntity {
     }
 
     // 옵션 등록
-    public void addOptions(List<ProductOption> options) {
+    public void createOptions(List<ProductOption> options) {
         options = Objects.requireNonNullElseGet(options, ArrayList::new);
         options.addAll(new ArrayList<>(options));
     }
 
     // 옵션 한개 등록
-    public void addOption(String name, int price) {
-        addOption(name, price, null);
+    public void createOption(String name, int price) {
+        createOption(name, price, null);
     }
 
-    public void addOption(String name, int price, List<ProductSubOption> subOptions) {
+    public void createOption(String name, int price, List<ProductSubOption> subOptions) {
         options = Objects.requireNonNullElseGet(options, ArrayList::new);
         options.add(new ProductOption(name, price, subOptions));
     }
@@ -95,6 +95,6 @@ public class Product extends BaseUserEntity {
     // 옵션 교체
     public void replace(List<ProductOption> options) {
         truncate();
-        addOptions(options);
+        createOptions(options);
     }
 }
