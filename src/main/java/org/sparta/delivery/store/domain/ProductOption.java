@@ -32,7 +32,7 @@ public class ProductOption {
     private Price price; // 옵션 추가 금액
 
     @Builder
-    protected ProductOption(String name, int price) {
+    public ProductOption(String name, int price) {
         this.name = name;
         this.price = new Price(price);
     }

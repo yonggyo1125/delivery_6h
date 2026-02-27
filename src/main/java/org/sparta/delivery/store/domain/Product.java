@@ -38,7 +38,17 @@ public class Product extends BaseUserEntity {
     @AttributeOverrides(
             @AttributeOverride(name="value", column = @Column(name="price"))
     )
-    private Price price;
+    private Price price; // 상품가
+
+    @AttributeOverrides(
+            @AttributeOverride(name="value", column = @Column(name="option_price"))
+    )
+    private Price optionPrice; // 옵션가 합계
+
+    @AttributeOverrides(
+            @AttributeOverride(name="value", column = @Column(name="total_price"))
+    )
+    private Price totalPrice; // 총 합계
 
     // 옵션 - 1:N 관계
     @ElementCollection(fetch=FetchType.LAZY)
@@ -50,32 +60,62 @@ public class Product extends BaseUserEntity {
     private List<ProductOption> options;
 
     @Builder
-    protected Product(UUID categoryId, String name, int price) {
+    protected Product(UUID categoryId, String name, int price, List<ProductOption> options) {
         this.category = new StoreCategory(categoryId);
         this.name = name;
         this.price = new Price(price);
         this.status = ProductStatus.READY;
+
+        // 상품 금액 계산
+        calculatePrice(options);
     }
 
+
+    // 금액 계산
+    private void calculatePrice(List<ProductOption> options) {
+        int optionPrice = 0;
+        if (options != null) {
+            optionPrice = options.stream().mapToInt(o -> o.getPrice().getValue()).sum();
+        }
+
+        this.optionPrice = new Price(optionPrice); // 옵션가 합계
+        this.totalPrice = price.add(this.optionPrice); // 총 합계
+    }
+
+
     // 옵션 등록
-    private void addOptions(List<ProductOption> options) {
+    public void addOptions(List<ProductOption> options) {
         options = Objects.requireNonNullElseGet(options, ArrayList::new);
         options.addAll(new ArrayList<>(options));
     }
 
     // 옵션 한개 등록
-    private void addOption(String name, int price) {
+    public void addOption(String name, int price) {
         options = Objects.requireNonNullElseGet(options, ArrayList::new);
         options.add(new ProductOption(name, price));
     }
 
     // 옵션 여러개 삭제
-
+    public void removeOptions(List<Integer> indexes) {
+        if (options == null) return;
+        indexes.stream().mapToInt(Integer::intValue).forEach(options::remove);
+    }
 
     // 옵션 한개 삭제
-    private void removeOption(int index) {
+    public void removeOption(int index) {
         if (options != null) {
             options.remove(index);
         }
+    }
+
+    // 옵션 비우기
+    public void truncate() {
+        options = new ArrayList<>();
+    }
+
+    // 옵션 교체
+    public void replace(List<ProductOption> options) {
+        truncate();
+        addOptions(options);
     }
 }
