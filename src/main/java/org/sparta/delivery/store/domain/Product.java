@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 /**
  * 상품 등록 및 수정시 분류는 매장에 등록된 분류에 있는지 체크
@@ -24,6 +25,9 @@ public class Product extends BaseUserEntity {
 
     @EmbeddedId
     private ProductId id;
+
+    @Column(length=30, unique = true, nullable = false)
+    private String productCode; // 상품 관리 코드
 
     @Embedded
     private StoreCategory category;
@@ -43,25 +47,31 @@ public class Product extends BaseUserEntity {
     // 옵션 - 1:N 관계
     @ElementCollection(fetch=FetchType.LAZY)
     @CollectionTable(name="P_PRODUCT_OPTION", joinColumns = {
-            @JoinColumn(name="store_id"),
-            @JoinColumn(name="product_idx")
+            @JoinColumn(name="store_id", referencedColumnName="storeId"),
+            @JoinColumn(name="product_idx", referencedColumnName="productIdx")
     })
     @OrderColumn(name="option_idx")
     private List<ProductOption> options;
 
     @Builder
-    protected Product(UUID categoryId, String name, int price, List<ProductOption> options) {
+    protected Product(UUID categoryId, String productCode, String name, int price, List<ProductOption> options) {
         this.category = new StoreCategory(categoryId);
+        this.productCode = productCode;
         this.name = name;
         this.price = new Price(price);
         this.status = ProductStatus.READY;
-        this.options = options;
+
+        this.options = new ArrayList<>();
+        if (options != null) {
+            this.options.addAll(options);
+        }
     }
 
     // 옵션 등록
-    public void createOptions(List<ProductOption> options) {
-        options = Objects.requireNonNullElseGet(options, ArrayList::new);
-        options.addAll(new ArrayList<>(options));
+    public void createOptions(List<ProductOption> newOptions) {
+        if (newOptions == null || newOptions.isEmpty()) return;
+        this.options = Objects.requireNonNullElseGet(this.options, ArrayList::new);
+        this.options.addAll(newOptions);
     }
 
     // 옵션 한개 등록
@@ -76,20 +86,30 @@ public class Product extends BaseUserEntity {
 
     // 옵션 여러개 삭제
     public void removeOptions(List<Integer> indexes) {
-        if (options == null) return;
-        indexes.stream().mapToInt(Integer::intValue).forEach(options::remove);
+        if (this.options == null || indexes == null) return;
+
+        List<ProductOption> remaining = IntStream.range(0, this.options.size())
+                .filter(i -> !indexes.contains(i))
+                .mapToObj(this.options::get)
+                .toList();
+
+        this.options.clear();
+        this.options.addAll(remaining);
     }
 
     // 옵션 한개 삭제
     public void removeOption(int index) {
-        if (options != null) {
-            options.remove(index);
+        if (options != null && index >= 0 && index < options.size()) {
+            removeOptions(List.of(index));
         }
     }
 
     // 옵션 비우기
     public void truncate() {
-        options = new ArrayList<>();
+        if (options != null) {
+            options.clear();
+        }
+
     }
 
     // 옵션 교체

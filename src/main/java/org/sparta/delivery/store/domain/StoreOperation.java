@@ -12,6 +12,7 @@ import java.time.LocalTime;
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class StoreOperation {
 
     private DayOfWeek dayOfWeek; // 운영 요일

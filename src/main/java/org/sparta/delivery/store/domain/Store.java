@@ -6,21 +6,27 @@ import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.global.presentation.exception.UnAuthorizedException;
+import org.sparta.delivery.store.domain.dto.StoreDto;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 /**
  * 모든 기능은 매장 주인(OWNER)와 관리자(MANAGER, MASTER)만 가능
  * 상품 수정 및 삭제시 매장 주인인 경우는 자신의 매장만, 관리자는 모두 가능
  * 분류 등록, 수정 시 유효한 분류인지 체크
  * 매장을 등록하면 기본 상태는 오픈 중비중 상태
+ * 오픈 준비중이거나 운영시간이 아닌 경우는 주문 불가
+ * 휴업중, 폐업중인 경우 노출 불가
  *
  */
 @Entity
@@ -71,7 +77,7 @@ public class Store extends BaseUserEntity {
     public Store(UUID storeId, UUID ownerId, String ownerName, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck) {
 
         // 등록 권한 체크
-        checkPossible(roleCheck, ownerCheck);
+        checkAuthority(roleCheck, ownerCheck);
 
         this.id = storeId == null ? StoreId.of() : StoreId.of(storeId);
         this.owner = new Owner(ownerId, ownerName);
@@ -80,110 +86,216 @@ public class Store extends BaseUserEntity {
         this.status = StoreStatus.PREPARING;
 
         // 분류 추가
-        createCategory(roleCheck, ownerCheck, categoryIds);
+        createCategory(StoreDto.CategoryDto
+                .builder()
+                .roleCheck(roleCheck)
+                .ownerCheck(ownerCheck)
+                .categoryIds(categoryIds)
+                .build());
     }
     //// 운영 요일 및 시간 S
     // 생성
-    public void createOperation(RoleCheck roleCheck, OwnerCheck ownerCheck, DayOfWeek dayOfWeek, LocalTime startHour, LocalTime endHour) {
+    public void createOperation(StoreDto.OperationDto dto) {
+        checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
+        operations = Objects.requireNonNullElseGet(operations, ArrayList::new);
 
-     }
+        operations.add(StoreDto.toOperation(dto));
+    }
+
+    // 여러개 생성
+    public void createOperation(List<StoreDto.OperationDto> items) {
+        items.forEach(this::createOperation);
+    }
+
+    // 변경
+    public void changeOperation(int idx, StoreDto.OperationDto dto) {
+        checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
+         if (operations == null || operations.get(idx) == null) return;
+        operations.set(idx, StoreDto.toOperation(dto));
+    }
+
+    // 제거
+    public void removeOperation(RoleCheck roleCheck, OwnerCheck ownerCheck, List<Integer> idxes) {
+         // 권한 체크
+        checkAuthority(roleCheck, ownerCheck);
+        if (operations == null) return;
+
+        List<StoreOperation> remaining = IntStream.range(0, operations.size())
+                .filter(i -> !idxes.contains(i))
+                .mapToObj(operations::get)
+                .toList();
+
+        operations.clear();
+        operations.addAll(remaining);
+    }
 
     ////운영 요일 및 시간  E
 
     ////  상품 S
     // 상품 생성
-    public void createProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, UUID categoryId, String name, int price, List<ProductOption> options) {
+    public void createProduct(StoreDto.ProductDto dto) {
         // 권한 체크
-        checkPossible(roleCheck, ownerCheck);
+        checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
+
         products = Objects.requireNonNullElseGet(products, ArrayList::new);
 
-        products.add(Product.builder()
-                        .categoryId(categoryId)
-                        .name(name)
-                        .price(price)
-                        .options(options)
-                    .build());
+        products.add(StoreDto.toProduct(dto));
     }
 
     // 상품 수정
-    public void changeProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, int productIdx, UUID categoryId, String name, int price, List<ProductOption> options ) {
+    public void changeProduct(int productIdx, StoreDto.ProductDto dto) {
         // 권한 체크
-        checkPossible(roleCheck, ownerCheck);
+        checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
         if (products == null || products.get(productIdx) == null) {
             throw new ProductNotFoundException();
         }
 
-        products.set(productIdx, Product.builder()
-                        .categoryId(categoryId)
-                        .name(name)
-                        .price(price)
-                        .options(options)
-                .build());
+        products.set(productIdx, StoreDto.toProduct(dto));
     }
 
     // 상품 삭제
-    public void removeProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, List<Integer> productIdxes) {
-        checkPossible(roleCheck, ownerCheck);
+    public void removeProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, List<String> productCodes) {
+        checkAuthority(roleCheck, ownerCheck);
         if (products == null) return;
 
-        List<Product> newProducts = new ArrayList<>();
-        for (int i = 0; i < products.size(); i++) {
-            if (!productIdxes.contains(i)) {
-                newProducts.add(products.get(i));
-            }
-        }
+        List<Product> newProducts = products.stream().filter(p -> !productCodes.contains(p.getProductCode())).toList();
 
-        products = newProducts;
+        products.clear();
+        products.addAll(newProducts);
     }
     ////  상품 E
 
     ///// 카테고리 S
     // 카테고리 생성
-    public void createCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
+    public void createCategory(StoreDto.CategoryDto dto) {
         // 권한 체크
-        checkPossible(roleCheck, ownerCheck);
+        checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
+
+        List<UUID> categoryIds = dto.getCategoryIds();
         if (categoryIds == null || categoryIds.isEmpty()) return;
 
         categories = Objects.requireNonNullElseGet(categories, ArrayList::new);
         categories.addAll(categoryIds.stream().distinct().map(StoreCategory::new).toList());
     }
 
-    public void createCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, UUID categoryId) {
-        createCategory(roleCheck, ownerCheck, List.of(categoryId));
-    }
 
     // 카테고리 모두 지우기
     public void truncateCategory(RoleCheck roleCheck, OwnerCheck ownerCheck) {
         // 권한 체크
-        checkPossible(roleCheck, ownerCheck);
-        categories = null;
+        checkAuthority(roleCheck, ownerCheck);
+        if (categories != null) categories.clear();
     }
 
     // 카테고리 교체
-    public void replaceCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
-        truncateCategory(roleCheck,ownerCheck);
-        createCategory(roleCheck, ownerCheck, categoryIds);
+    public void replaceCategory(StoreDto.CategoryDto dto) {
+        truncateCategory(dto.getRoleCheck(),dto.getOwnerCheck());
+        createCategory(dto);
     }
 
     // 카테고리 제거
-    public void removeCategory(RoleCheck roleCheck, OwnerCheck ownerCheck, List<UUID> categoryIds) {
+    public void removeCategory(StoreDto.CategoryDto dto) {
         // 권한 체크
-        checkPossible(roleCheck, ownerCheck);
+        checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
         if (categories == null) return;
 
+        List<UUID> categoryIds = dto.getCategoryIds();
         categories = categories.stream().filter(c -> !categoryIds.contains(c.getCategoryId())).toList();
     }
     ///// 카테고리 E
 
+    /**
+     *  영업중이고 영업일 및 시간에 해당하는 경우 주문 가능
+     *  startTime 보다 endTime이 더 앞선 시간인 경우 endTime은 익일 시간으로 판단
+     *      예) 16:00, 02:00 이면 02:00은 익일 새벽 2시
+     *  영업일 및 시간이 등록되지 않은 경우는 breakTime 제외 항상 주문가능
+     *  시간은 등록되지 않고 요일만 등록된 경우 시간과 상관없이 운영
+     */
+    public boolean isOrderable() {
+        if (status != StoreStatus.OPEN) return false;
+        if (operations == null || operations.isEmpty()) return true;
 
+        LocalDateTime now = LocalDateTime.now();
+        DayOfWeek today = now.getDayOfWeek();
+        DayOfWeek yesterday = today.minus(1);
+
+        // 1. 어제부터 시작된 영업이 현재(새벽)까지 이어지는지 확인
+        boolean isContinuingFromYesterday = operations.stream()
+                .filter(op -> op.getDayOfWeek().equals(yesterday))
+                .anyMatch(op -> isNowInBusinessRange(op, now, true));
+
+        // 2. 오늘 시작된 영업이 현재 진행 중인지 확인
+        boolean isStartingToday = operations.stream()
+                .filter(op -> op.getDayOfWeek().equals(today))
+                .anyMatch(op -> isNowInBusinessRange(op, now, false));
+
+        return isContinuingFromYesterday || isStartingToday;
+    }
+
+    private boolean isNowInBusinessRange(StoreOperation op, LocalDateTime now, boolean isFromYesterday) {
+        LocalTime start = op.getStartHour();
+        LocalTime end = op.getEndHour();
+
+        // 시간 설정이 없으면 요일만 맞으면 통과 (어제 영업이면 false)
+        if (start == null || end == null) return !isFromYesterday;
+
+        LocalDate baseDate = isFromYesterday ? now.toLocalDate().minusDays(1) : now.toLocalDate();
+        LocalDateTime businessStart = baseDate.atTime(start);
+        LocalDateTime businessEnd = baseDate.atTime(end);
+
+        // 익일 종료 케이스 처리 (ex: 22:00 ~ 02:00)
+        if (businessEnd.isBefore(businessStart)) {
+            businessEnd = businessEnd.plusDays(1);
+        }
+
+        // 현재 시간이 영업 범위 밖이면 즉시 종료
+        if (now.isBefore(businessStart) || now.isAfter(businessEnd)) {
+            return false;
+        }
+
+        // 영업 범위 안이라면, 해당 'Operation' 객체에 설정된 브레이크 타임인지 확인
+        return !isWithinBreakTime(op, now, baseDate);
+    }
+
+    private boolean isWithinBreakTime(StoreOperation op, LocalDateTime now, LocalDate baseDate) {
+        return isTimeInBreak(op.getBreakHour1(), now, baseDate) ||
+                isTimeInBreak(op.getBreakHour2(), now, baseDate);
+    }
+
+    private boolean isTimeInBreak(BreakTime breakTime, LocalDateTime now, LocalDate baseDate) {
+        if (breakTime == null || breakTime.start() == null || breakTime.end() == null) return false;
+
+        LocalDateTime sTime = baseDate.atTime(breakTime.start());
+        LocalDateTime eTime = baseDate.atTime(breakTime.end());
+
+        // 브레이크 타임도 자정을 넘길 수 있음을 고려
+        if (eTime.isBefore(sTime)) eTime = eTime.plusDays(1);
+
+        // inclusive 체크 (start <= now < end)
+        return (now.isEqual(sTime) || now.isAfter(sTime)) && now.isBefore(eTime);
+    }
+
+    // 영업 준비중, 영업중인 경우 가게 노출 가능
+    public boolean isVisible() {
+        return status == StoreStatus.OPEN || status == StoreStatus.PREPARING;
+    }
     /**
      * 모든 기능은 매장 주인(OWNER)와 관리자(MANAGER, MASTER)만 가능
      * storeId가 null 이라면 신규 등록이므로 ONWER 권한이 있는지만 체크,
      *          null이 아니라면 storeId로 매장의 소유자인지 체크
      */
-    private void checkPossible(RoleCheck roleCheck, OwnerCheck ownerCheck) {
+    private void checkAuthority(RoleCheck roleCheck, OwnerCheck ownerCheck) {
 
-        if (!roleCheck.hasRole(List.of("MASTER", "MASTER")) && !ownerCheck.isOwner(id.getId())) {
+        // 관리자 권한인 경우 통과
+        if (roleCheck.hasRole(List.of("MANAGER", "MASTER"))) {
+            return;
+        }
+
+        // 신규 등록인 경우라면 OWNER 권한 확인
+        if (id == null) {
+            if (!roleCheck.hasRole("OWNER")) {
+                throw new UnAuthorizedException();
+            }
+        } else if (!ownerCheck.isOwner(id.getId())) { // 상점 정보 수정인 경우 매장 소유주 확인
             throw new UnAuthorizedException();
         }
     }
