@@ -49,6 +49,10 @@ public class ExceptionHandlerAdvice {
             status = HttpStatus.BAD_REQUEST;
             message = messageUtils.getMessage("MISSING.BODY");
 
+        } else if (e instanceof IllegalArgumentException) {
+            status = HttpStatus.BAD_REQUEST;
+            message = messageUtils.getMessage("INVALID.REQUEST_VALUE") + "(%s)".formatted(e.getMessage());
+
         } else if (e instanceof OptimisticLockException || e instanceof ObjectOptimisticLockingFailureException) {
             status = HttpStatus.CONFLICT; // 409 Conflict 권장
             message = messageUtils.getMessage("CONCURRENCY.ERROR");
