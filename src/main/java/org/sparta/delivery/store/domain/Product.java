@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 @Getter
 @ToString
 @Entity
+@Table(name="P_PRODUCT")
 @SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseUserEntity {
@@ -55,7 +56,7 @@ public class Product extends BaseUserEntity {
     @ElementCollection(fetch=FetchType.LAZY)
     @CollectionTable(name="P_PRODUCT_OPTION", joinColumns = {
             @JoinColumn(name="store_id"),
-            @JoinColumn(name="product_code")
+            @JoinColumn(name="product_idx")
     })
     @SQLRestriction("deleted_at IS NULL")
     @OrderColumn(name="option_idx")

@@ -77,7 +77,7 @@ public class Store extends BaseUserEntity {
 
     // 매장 메뉴 - 1:N 관계
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "P_PRODUCT", joinColumns = @JoinColumn(name="store_id"))
+    @CollectionTable(name = "P_STORE_PRODUCT", joinColumns = @JoinColumn(name="store_id"))
     @SQLRestriction("deleted_at IS NULL")
     @OrderColumn(name="product_idx")
     private List<Product> products;
