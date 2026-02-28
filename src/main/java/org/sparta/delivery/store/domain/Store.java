@@ -93,6 +93,13 @@ public class Store extends BaseUserEntity {
                 .categoryIds(categoryIds)
                 .build());
     }
+
+
+    // 상점 삭제(Soft Delete)
+    public void remove() {
+        deletedAt = LocalDateTime.now();
+    }
+
     //// 운영 요일 및 시간 S
     // 생성
     public void createOperation(StoreDto.OperationDto dto) {

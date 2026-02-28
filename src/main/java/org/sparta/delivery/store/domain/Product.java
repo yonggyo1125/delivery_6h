@@ -117,7 +117,7 @@ public class Product extends BaseUserEntity {
     }
 
     // 옵션 비우기
-    public void truncate() {
+    public void truncateOption() {
         if (options != null) {
             options.clear();
         }
@@ -125,8 +125,8 @@ public class Product extends BaseUserEntity {
     }
 
     // 옵션 교체
-    public void replace(List<ProductOption> options) {
-        truncate();
+    public void replaceOption(List<ProductOption> options) {
+        truncateOption();
         createOptions(options);
     }
 }
