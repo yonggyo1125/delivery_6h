@@ -91,6 +91,7 @@ public class ChangeStoreService {
                         .businessNo(dto.getBusinessNo())
                         .landline(dto.getLandline())
                         .email(dto.getEmail())
+                        .address(dto.getAddress())
                         .addressToCoords(addressToCoords)
                 .build());
     }
