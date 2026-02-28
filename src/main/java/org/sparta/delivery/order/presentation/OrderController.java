@@ -39,7 +39,7 @@ public class OrderController {
                 .build();
 
         List<OrderItemDto> items = req.items() == null ? null : req.items().stream()
-                .map(item -> new OrderItemDto(item.itemId(), item.quantity()))
+                .map(item -> new OrderItemDto(item.itemCode(), item.quantity()))
                 .toList();
 
         UUID orderId = createService.create(orderInfo, items);

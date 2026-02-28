@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.sparta.delivery.global.domain.Price;
 
-import java.util.UUID;
-
 @Embeddable
 @ToString @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,8 +24,8 @@ public class OrderItem {
     private Price totalPrice;
 
     @Builder
-    public OrderItem(UUID itemId, String itemName, int price, int quantity) {
-        item = new ProductInfo(itemId, itemName);
+    public OrderItem(String itemCode, String itemName, int price, int quantity) {
+        item = new ProductInfo(itemCode, itemName);
         this.price = new Price(price);
         this.quantity = quantity;
 

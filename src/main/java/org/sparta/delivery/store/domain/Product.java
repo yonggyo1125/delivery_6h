@@ -37,8 +37,7 @@ public class Product extends BaseUserEntity {
     @Column(length=30, unique = true, nullable = false)
     private String productCode; // 상품 관리 코드
 
-    @Embedded
-    private StoreCategory category;
+    private UUID category;
 
     @Column(length=20)
     @Enumerated(EnumType.STRING)
@@ -56,7 +55,7 @@ public class Product extends BaseUserEntity {
     @ElementCollection(fetch=FetchType.LAZY)
     @CollectionTable(name="P_PRODUCT_OPTION", joinColumns = {
             @JoinColumn(name="store_id"),
-            @JoinColumn(name="product_idx")
+            @JoinColumn(name="product_code")
     })
     @SQLRestriction("deleted_at IS NULL")
     @OrderColumn(name="option_idx")
@@ -64,7 +63,7 @@ public class Product extends BaseUserEntity {
 
     @Builder
     protected Product(UUID categoryId, String productCode, String name, int price, List<ProductOption> options) {
-        this.category = new StoreCategory(categoryId);
+        this.category = categoryId;
         this.productCode = productCode;
         this.name = name;
         this.price = new Price(price);

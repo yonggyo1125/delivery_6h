@@ -47,7 +47,7 @@ public class CreateOrderService {
     private List<OrderItem> toOrderItem(List<OrderItemDto> items) {
         return items == null ? null : items.stream()
                 .map(item -> OrderItem.builder()
-                        .itemId(item.itemId())
+                        .itemCode(item.itemCode())
                         .itemName("구현예정")
                         .price(1000)
                         .quantity(item.quantity())
