@@ -50,7 +50,7 @@ public class StoreController {
 
     @Operation(summary = "매장 정보 수정", description = "매장의 기본 정보를 업데이트합니다.")
     @PatchMapping("/{storeId}/info")
-    public ResponseEntity<Void> updateStoreInfo(
+    public void updateStoreInfo(
             @Parameter(description = "매장 식별자(UUID)") @PathVariable UUID storeId,
             @RequestBody @Valid StoreRequestDto.ChangeInfo request) {
         changeStoreService.changeStoreInfo(storeId, StoreServiceDto.StoreInfo.builder()
@@ -60,35 +60,32 @@ public class StoreController {
                 .email(request.getEmail())
                 .address(request.getAddress())
                 .build());
-        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "매장 운영 상태 변경", description = "매장의 상태(OPEN, PREPARING 등)를 변경합니다.")
     @PatchMapping("/{storeId}/status")
-    public ResponseEntity<Void> updateStoreStatus(
+    public void updateStoreStatus(
             @PathVariable UUID storeId,
             @Parameter(description = "변경할 상태 값", example = "OPEN") @RequestParam String status) {
         changeStoreService.changeStoreStatus(storeId, status);
-        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "운영 시간 일괄 등록/변경", description = "요일별 운영 시간 및 브레이크 타임을 설정합니다.")
     @PostMapping("/{storeId}/operations")
-    public ResponseEntity<Void> createOperations(
+    public void createOperations(
             @PathVariable UUID storeId,
             @RequestBody @Valid List<StoreRequestDto.Operation> requests) {
         List<StoreServiceDto.Operation> serviceDtos = requests.stream()
                 .map(this::toOperationServiceDto)
                 .toList();
         changeStoreService.createOperations(storeId, serviceDtos);
-        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "매장 삭제(Soft Delete)", description = "매장을 논리적으로 삭제 처리합니다.")
     @DeleteMapping("/{storeId}")
-    public ResponseEntity<Void> deleteStore(@PathVariable UUID storeId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteStore(@PathVariable UUID storeId) {
         removeStoreService.remove(storeId);
-        return ResponseEntity.noContent().build();
     }
 
     private StoreServiceDto.Operation toOperationServiceDto(StoreRequestDto.Operation request) {

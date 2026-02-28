@@ -23,10 +23,10 @@ public class ChangeProductService {
 
     // 상품 정보 변경
     @Transactional
-    public void changeProductInfo(UUID storeId, StoreServiceDto.Product dto) {
+    public void changeProductInfo(UUID storeId, String productCode, StoreServiceDto.Product dto) {
         Store store = ProductServiceHelper.getStore(storeId, repository, roleCheck, ownerCheck);
 
-        store.changeProduct(dto.getProductCode(), ProductServiceHelper.toProduct(roleCheck, ownerCheck, dto));
+        store.changeProduct(productCode, ProductServiceHelper.toProduct(roleCheck, ownerCheck, dto));
     }
 
     // 옵션 추가
