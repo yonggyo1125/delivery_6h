@@ -72,10 +72,10 @@ springdoc:
     operations-sorter: alpha
     tags-sorter: alpha
     path: /api-docs.html
-    disable-swagger-default-url: true
+    disable-swagger-default-url: true # 기본 URL 비활성화 (그룹 선택 유도)
     doc-expansion: full
-  paths-to-match:
-    - /v1/**
+    groups-order: asc                # 그룹 정렬 순서
+    display-request-duration: true   # 요청 소요 시간 표시
 
 keycloak:
   server-url: https://keycloak.code-factory.co.kr
