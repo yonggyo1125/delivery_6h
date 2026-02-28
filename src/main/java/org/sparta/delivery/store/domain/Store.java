@@ -2,6 +2,7 @@ package org.sparta.delivery.store.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
@@ -14,10 +15,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.IntStream;
 
 /**
@@ -33,6 +31,7 @@ import java.util.stream.IntStream;
 @ToString @Getter
 @Table(name="P_STORE")
 @Access(AccessType.FIELD)
+@SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Store extends BaseUserEntity {
     @EmbeddedId
@@ -63,15 +62,16 @@ public class Store extends BaseUserEntity {
     // 매장 분류 - 1:N 관계
     @ElementCollection(fetch=FetchType.LAZY)
     @CollectionTable(name="P_STORE_CATEGORY", joinColumns=@JoinColumn(name="store_id"))
+    @SQLRestriction("deleted_at IS NULL")
     @OrderColumn(name="category_idx")
     private List<StoreCategory> categories;
 
     // 매장 메뉴 - 1:N 관계
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "P_PRODUCT", joinColumns = @JoinColumn(name="store_id"))
+    @SQLRestriction("deleted_at IS NULL")
     @OrderColumn(name="product_idx")
     private List<Product> products;
-
 
     @Builder
     public Store(UUID storeId, UUID ownerId, String ownerName, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck) {
@@ -153,15 +153,20 @@ public class Store extends BaseUserEntity {
         products.set(productIdx, StoreDto.toProduct(dto));
     }
 
-    // 상품 삭제
+    // 상품 삭제 (Soft Delete)
     public void removeProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, List<String> productCodes) {
         checkAuthority(roleCheck, ownerCheck);
-        if (products == null) return;
 
-        List<Product> newProducts = products.stream().filter(p -> !productCodes.contains(p.getProductCode())).toList();
+        if (products == null || productCodes == null || productCodes.isEmpty()) {
+            return;
+        }
 
-        products.clear();
-        products.addAll(newProducts);
+        Set<String> codeSet = new HashSet<>(productCodes);
+
+        products.stream()
+                .filter(p -> p.getDeletedAt() == null && codeSet.contains(p.getProductCode()))
+                .forEach(Product::remove);
+
     }
     ////  상품 E
 
@@ -192,14 +197,18 @@ public class Store extends BaseUserEntity {
         createCategory(dto);
     }
 
-    // 카테고리 제거
+    // 카테고리 제거(Soft Delete)
     public void removeCategory(StoreDto.CategoryDto dto) {
         // 권한 체크
         checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
-        if (categories == null) return;
 
-        List<UUID> categoryIds = dto.getCategoryIds();
-        categories = categories.stream().filter(c -> !categoryIds.contains(c.getCategoryId())).toList();
+        if (categories == null || dto.getCategoryIds() == null) return;
+
+        Set<UUID> targetIds = new HashSet<>(dto.getCategoryIds());
+
+        categories.stream()
+                .filter(c -> c.getDeletedAt() == null && targetIds.contains(c.getCategoryId()))
+                .forEach(StoreCategory::remove);
     }
     ///// 카테고리 E
 

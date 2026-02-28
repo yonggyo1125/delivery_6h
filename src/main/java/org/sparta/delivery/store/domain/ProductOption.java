@@ -21,8 +21,7 @@ public class ProductOption {
         ...
      ]
     */
-    @Lob
-    @Column(name="sub_options")
+    @Column(name="sub_options", columnDefinition = "jsonb")
     private List<ProductSubOption> subOptions; // 하위 옵션
 
 

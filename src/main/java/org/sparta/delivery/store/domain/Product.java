@@ -2,9 +2,11 @@ package org.sparta.delivery.store.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +22,7 @@ import java.util.stream.IntStream;
 @Getter
 @ToString
 @Entity
+@SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseUserEntity {
 
@@ -53,6 +56,7 @@ public class Product extends BaseUserEntity {
             @JoinColumn(name="store_id"),
             @JoinColumn(name="product_idx")
     })
+    @SQLRestriction("deleted_at IS NULL")
     @OrderColumn(name="option_idx")
     private List<ProductOption> options;
 
@@ -68,6 +72,11 @@ public class Product extends BaseUserEntity {
         if (options != null) {
             this.options.addAll(options);
         }
+    }
+
+    // 상품 삭제 (Soft Delete)
+    public void remove() {
+        deletedAt = LocalDateTime.now();
     }
 
     // 옵션 등록
