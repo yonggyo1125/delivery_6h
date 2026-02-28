@@ -37,6 +37,9 @@ public class Store extends BaseUserEntity {
     @EmbeddedId
     private StoreId id;
 
+    @Version
+    private int version; // 낙관적 Lock
+
     @Column(length=30)
     @Enumerated(EnumType.STRING)
     private StoreStatus status; // 매장 운영 상태
