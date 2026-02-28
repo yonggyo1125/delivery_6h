@@ -130,7 +130,7 @@ public class Product extends BaseUserEntity {
     }
 
     // 옵션 교체
-    public void replaceOption(List<ProductOption> options) {
+    public void replaceOptions(List<ProductOption> options) {
         truncateOption();
         createOptions(options);
     }
@@ -142,12 +142,27 @@ public class Product extends BaseUserEntity {
 
 
     // 상태 변경 (매장을 통해서만 상태 변경 가능)
-    protected void changeStatus(ProductStatus status) {
+    private void changeStatus(ProductStatus status) {
         this.status = status;
     }
 
     // 상품 노출 가능 여부
     public boolean isVisible() {
         return getDeletedAt() == null && status != ProductStatus.READY;
+    }
+
+    // 준비중 상태 변경
+    public void changeReadyStatus() {
+        changeStatus(ProductStatus.READY);
+    }
+
+    // 팬매중 상태 변경
+    public void changeSaleStatus() {
+        changeStatus(ProductStatus.SALE);
+    }
+
+    // 품정 상태 변경
+    public void changeStockOutStatus() {
+        changeStatus(ProductStatus.STOCK_OUT);
     }
 }

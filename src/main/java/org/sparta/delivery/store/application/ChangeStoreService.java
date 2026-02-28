@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ChangeStoreInfoService {
+public class ChangeStoreService {
     private final StoreRepository repository;
     private final RoleCheck roleCheck;
     private final OwnerCheck ownerCheck;
@@ -97,10 +97,11 @@ public class ChangeStoreInfoService {
 
     // 매장 운영 상태 변경
     @Transactional
-    public void changeStoreStatus(UUID storeId, StoreStatus status) {
+    public void changeStoreStatus(UUID storeId, String status) {
         Store store = getStore(storeId);
 
-        store.changeStatus(roleCheck, ownerCheck, status);
+        StoreStatus targetStatus = StoreStatus.valueOf(status.toUpperCase());
+        store.changeStatus(roleCheck, ownerCheck, targetStatus);
     }
 
     // 매장 조회

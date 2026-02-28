@@ -194,7 +194,7 @@ public class Store extends BaseUserEntity {
         // 권한 체크
         checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
 
-        // productCode 중복 여부 체크
+        // productCode 중복 체크
         checkProductCodeDuplication(dto.getProductCode(), null);
 
         products = Objects.requireNonNullElseGet(products, ArrayList::new);
@@ -203,16 +203,17 @@ public class Store extends BaseUserEntity {
     }
 
     // 상품 수정
-    public void changeProduct(int productIdx, StoreDto.ProductDto dto) {
+    public void changeProduct(String productCode, StoreDto.ProductDto dto) {
         // 권한 체크
         checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
-        if (products == null || products.get(productIdx) == null) {
-            throw new ProductNotFoundException();
-        }
 
-        // productCode 중복 여부 체크
+        Product product = Optional.ofNullable(getProduct(productCode))
+                .orElseThrow(ProductNotFoundException::new);
+
+        int productIdx = products.indexOf(product);
+
+        // productCode 중복 체크
         checkProductCodeDuplication(dto.getProductCode(), productIdx);
-
 
         products.set(productIdx, StoreDto.toProduct(id, productIdx, dto));
     }
@@ -255,6 +256,13 @@ public class Store extends BaseUserEntity {
         if (isDuplicated) {
             throw new ProductDuplicatedException(productCode);
         }
+    }
+
+    // productCode로 상품 조회
+    public Product getProduct(String productCode) {
+        if (products == null || products.isEmpty()) return null;
+
+        return products.stream().filter(p -> p.getProductCode().equals(productCode)).findFirst().orElse(null);
     }
     ////  상품 E
 
@@ -381,7 +389,7 @@ public class Store extends BaseUserEntity {
      * storeId가 null 이라면 신규 등록이므로 ONWER 권한이 있는지만 체크,
      *          null이 아니라면 storeId로 매장의 소유자인지 체크
      */
-    private void checkAuthority(RoleCheck roleCheck, OwnerCheck ownerCheck) {
+    public void checkAuthority(RoleCheck roleCheck, OwnerCheck ownerCheck) {
 
         // 관리자 권한인 경우 통과
         if (roleCheck.hasRole(List.of("MANAGER", "MASTER"))) {
