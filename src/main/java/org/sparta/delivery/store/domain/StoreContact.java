@@ -13,6 +13,6 @@ public class StoreContact {
     @Column(length=20, name="landline")
     private String landline;
 
-    @Column(length=65)
+    @Column(length=65, nullable = false)
     private String email;
 }

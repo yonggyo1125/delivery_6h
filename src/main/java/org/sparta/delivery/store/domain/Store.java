@@ -9,6 +9,7 @@ import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.global.presentation.exception.UnAuthorizedException;
 import org.sparta.delivery.store.domain.dto.StoreDto;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
+import org.sparta.delivery.store.domain.exception.StoreStatusException;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 
 import java.time.DayOfWeek;
@@ -25,6 +26,7 @@ import java.util.stream.IntStream;
  * 매장을 등록하면 기본 상태는 오픈 중비중 상태
  * 오픈 준비중이거나 운영시간이 아닌 경우는 주문 불가
  * 휴업중, 폐업중인 경우 노출 불가
+ * 폐업된 매장은 상태 변경 불가(그러나 관리자(MANAGER, MASTER)는 변경 가능 - 매장 주인의 실수 복원)
  *
  */
 @Entity
@@ -40,15 +42,18 @@ public class Store extends BaseUserEntity {
     @Version
     private int version; // 낙관적 Lock
 
-    @Column(length=30)
+    @Column(length=30, nullable = false)
     @Enumerated(EnumType.STRING)
     private StoreStatus status; // 매장 운영 상태
 
     @Embedded
     private Owner owner;
 
-    @Column(length=65, name="store_name")
+    @Column(length=65, name="store_name", nullable = false)
     private String name; // 매장명
+
+    @Column(length=45, nullable = false)
+    private String businessNo; // 사업자번호
 
     @Embedded
     private StoreContact contact; // 매장 연락처
@@ -77,13 +82,14 @@ public class Store extends BaseUserEntity {
     private List<Product> products;
 
     @Builder
-    public Store(UUID storeId, UUID ownerId, String ownerName, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck) {
+    public Store(UUID storeId, UUID ownerId, String ownerName, String businessNo, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck) {
 
         // 등록 권한 체크
         checkAuthority(roleCheck, ownerCheck);
 
         this.id = storeId == null ? StoreId.of() : StoreId.of(storeId);
         this.owner = new Owner(ownerId, ownerName);
+        this.businessNo = businessNo;
         this.contact = new StoreContact(landline, email);
         this.location = new StoreLocation(address, addressToCoords);
         this.status = StoreStatus.PREPARING;
@@ -97,6 +103,27 @@ public class Store extends BaseUserEntity {
                 .build());
     }
 
+    // 상점 일반 정보 수정
+    public void changeInfo(StoreDto.StoreInfoDto dto) {
+        // 권한 체크
+        checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
+
+       owner = new Owner(owner.getId(), dto.getOwnerName());
+       this.businessNo = dto.getBusinessNo();
+       contact = new StoreContact(dto.getLandline(), dto.getEmail());
+       this.location = new StoreLocation(dto.getAddress(), dto.getAddressToCoords());
+    }
+
+    // 매장 운영 상태 변경
+    public void changeStatus(RoleCheck roleCheck, OwnerCheck ownerCheck, StoreStatus status) {
+        // 권한 체크
+        checkAuthority(roleCheck, ownerCheck);
+        if (this.status == StoreStatus.DEFUNCT && !roleCheck.hasRole(List.of("MANAGER", "MASTER"))) {
+            throw new StoreStatusException();
+        }
+
+        this.status = status;
+    }
 
     // 상점 삭제(Soft Delete)
     public void remove() {

@@ -21,7 +21,7 @@ public class CreateStoreService {
     private final AddressToCoords addressToCoords;
 
     @Transactional
-    public UUID create(StoreServiceDto.CreateDto dto) {
+    public UUID create(StoreServiceDto.CreateStore dto) {
 
         Store store = Store.builder()
                 .ownerId(dto.getOwnerId())
