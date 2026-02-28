@@ -2,15 +2,17 @@ package org.sparta.delivery.store.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.sparta.delivery.global.domain.BaseEntity;
 import org.sparta.delivery.global.domain.Price;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @ToString
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductOption {
+public class ProductOption extends BaseEntity {
     @Column(length=65)
     private String name; // 옵션명
 
@@ -35,5 +37,10 @@ public class ProductOption {
         this.name = name;
         this.price = new Price(price);
         this.subOptions = subOptions;
+    }
+
+    // 옵션 삭제
+    protected void remove() {
+        deletedAt = LocalDateTime.now();
     }
 }

@@ -18,6 +18,8 @@ import java.util.stream.IntStream;
  * 상품 상태는 준비중, 판매중, 품절이 있으며, 준비중 상태에서는 상품은 미노출, 품절은 노출되지만 주문에 제한이 있음
  * 상품 등록시 기본값은 상품 준비중
  * 옵션은 상품을 통해서 등록, 수정, 삭제 가능
+ * 상품이 삭제되지 않고 판매중(SALE)일때만 주문 가능
+ *
  */
 @Getter
 @ToString
@@ -76,7 +78,11 @@ public class Product extends BaseUserEntity {
 
     // 상품 삭제 (Soft Delete)
     public void remove() {
+
         deletedAt = LocalDateTime.now();
+
+        // 옵션 삭제
+        options.forEach(ProductOption::remove);
     }
 
     // 옵션 등록
@@ -96,17 +102,14 @@ public class Product extends BaseUserEntity {
         options.add(new ProductOption(name, price, subOptions));
     }
 
-    // 옵션 여러개 삭제
+    // 옵션 여러개 삭제(Soft Delete)
     public void removeOptions(List<Integer> indexes) {
         if (this.options == null || indexes == null) return;
 
-        List<ProductOption> remaining = IntStream.range(0, this.options.size())
-                .filter(i -> !indexes.contains(i))
+        IntStream.range(0, this.options.size())
+                .filter(indexes::contains)
                 .mapToObj(this.options::get)
-                .toList();
-
-        this.options.clear();
-        this.options.addAll(remaining);
+                .forEach(ProductOption::remove);
     }
 
     // 옵션 한개 삭제
@@ -128,5 +131,21 @@ public class Product extends BaseUserEntity {
     public void replaceOption(List<ProductOption> options) {
         truncateOption();
         createOptions(options);
+    }
+
+    // 주문 가능 여부
+    public boolean isOrderable() {
+        return status == ProductStatus.SALE && getDeletedAt() == null;
+    }
+
+
+    // 상태 변경 (매장을 통해서만 상태 변경 가능)
+    protected void changeStatus(ProductStatus status) {
+        this.status = status;
+    }
+
+    // 상품 노출 가능 여부
+    public boolean isVisible() {
+        return getDeletedAt() == null && status != ProductStatus.READY;
     }
 }

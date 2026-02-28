@@ -3,8 +3,10 @@ package org.sparta.delivery.store.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
+import org.sparta.delivery.global.domain.BaseEntity;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -13,7 +15,7 @@ import java.time.LocalTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class StoreOperation {
+public class StoreOperation extends BaseEntity {
 
     private DayOfWeek dayOfWeek; // 운영 요일
     private LocalTime startHour; // 시작 시간
@@ -23,4 +25,8 @@ public class StoreOperation {
     private BreakTime breakHour1; // 휴식 시간1
     @Column(length=20)
     private BreakTime breakHour2; // 휴식 시간2
+
+    protected void remove() {
+        deletedAt = LocalDateTime.now();
+    }
 }

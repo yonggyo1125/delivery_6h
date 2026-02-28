@@ -64,6 +64,7 @@ public class Store extends BaseUserEntity {
     // 운영 요일 및 시간 - 1:N 관계 - 운영 요일 및 시간이 등록되지 않는다면 연중 무휴
     @ElementCollection(fetch=FetchType.LAZY)
     @CollectionTable(name="P_STORE_OPERATION", joinColumns=@JoinColumn(name="store_id"))
+    @SQLRestriction("deleted_at IS NULL")
     @OrderColumn(name="operation_idx")
     private List<StoreOperation> operations;
 
@@ -126,8 +127,26 @@ public class Store extends BaseUserEntity {
     }
 
     // 상점 삭제(Soft Delete)
-    public void remove() {
+    public void remove(RoleCheck roleCheck, OwnerCheck ownerCheck) {
+        // 권한체크
+        checkAuthority(roleCheck, ownerCheck);
+
         deletedAt = LocalDateTime.now();
+
+        // 상품 삭제
+        if (products != null) {
+            products.forEach(Product::remove);
+        }
+
+        // 카테고리 삭제
+        if (categories != null) {
+            categories.forEach(StoreCategory::remove);
+        }
+
+        // 운영시간 삭제
+        if (operations != null) {
+            operations.forEach(StoreOperation::remove);
+        }
     }
 
     //// 운영 요일 및 시간 S
