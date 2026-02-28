@@ -64,7 +64,8 @@ public class Product extends BaseUserEntity {
     private List<ProductOption> options;
 
     @Builder
-    protected Product(UUID categoryId, String productCode, String name, int price, List<ProductOption> options) {
+    protected Product(StoreId storeId, int productIdx, UUID categoryId, String productCode, String name, int price, List<ProductOption> options) {
+        this.id = new ProductId(storeId, productIdx);
         this.category = categoryId;
         this.productCode = productCode;
         this.name = name;

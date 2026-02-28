@@ -8,6 +8,7 @@ import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.global.presentation.exception.UnAuthorizedException;
 import org.sparta.delivery.store.domain.dto.StoreDto;
+import org.sparta.delivery.store.domain.exception.ProductDuplicatedException;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.exception.StoreStatusException;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
@@ -193,9 +194,12 @@ public class Store extends BaseUserEntity {
         // 권한 체크
         checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
 
+        // productCode 중복 여부 체크
+        checkProductCodeDuplication(dto.getProductCode(), null);
+
         products = Objects.requireNonNullElseGet(products, ArrayList::new);
 
-        products.add(StoreDto.toProduct(dto));
+        products.add(StoreDto.toProduct(id, products.size(), dto));
     }
 
     // 상품 수정
@@ -206,7 +210,11 @@ public class Store extends BaseUserEntity {
             throw new ProductNotFoundException();
         }
 
-        products.set(productIdx, StoreDto.toProduct(dto));
+        // productCode 중복 여부 체크
+        checkProductCodeDuplication(dto.getProductCode(), productIdx);
+
+
+        products.set(productIdx, StoreDto.toProduct(id, productIdx, dto));
     }
 
     // 상품 삭제 (Soft Delete)
@@ -222,7 +230,31 @@ public class Store extends BaseUserEntity {
         products.stream()
                 .filter(p -> p.getDeletedAt() == null && codeSet.contains(p.getProductCode()))
                 .forEach(Product::remove);
+    }
 
+    // 상품 삭제 (Hard Delete), 관리자(MANAGER, MASTER)만 가능
+    public void forceRemoveProduct(RoleCheck roleCheck, String productCode) {
+        if (!roleCheck.hasRole(List.of("MANAGER", "MASTER"))) {
+            throw new UnAuthorizedException();
+        }
+
+        if (products != null) {
+            products.removeIf(p -> p.getProductCode().equals(productCode));
+        }
+    }
+
+
+    // 상품코드 중복 여부 체크
+    private void checkProductCodeDuplication(String productCode, Integer excludeIdx) {
+        if (products == null) return;
+
+        boolean isDuplicated = IntStream.range(0, products.size())
+                .filter(i -> excludeIdx == null || i != excludeIdx)
+                .anyMatch(i -> products.get(i).getProductCode().equals(productCode));
+
+        if (isDuplicated) {
+            throw new ProductDuplicatedException(productCode);
+        }
     }
     ////  상품 E
 

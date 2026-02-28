@@ -48,7 +48,7 @@ public class StoreDto {
                 .startHour(dto.getStartHour())
                 .endHour(dto.getEndHour())
                 .breakHour1(new BreakTime(dto.getBreakStart1(), dto.getBreakEnd1()))
-                .breakHour2(new BreakTime(dto.getBreakStart1(), dto.getBreakEnd2()))
+                .breakHour2(new BreakTime(dto.getBreakStart2(), dto.getBreakEnd2()))
                 .build();
     }
 
@@ -91,10 +91,12 @@ public class StoreDto {
     }
 
     // ProductDto -> Product
-    public static Product toProduct(ProductDto dto) {
+    public static Product toProduct(StoreId storeId, int productIdx, ProductDto dto) {
         List<ProductOptionDto> optionDtos = dto.getOptions();
         List<ProductOption> options =optionDtos == null ? null : optionDtos.stream().map(StoreDto::toProductOption).toList();
         return Product.builder()
+                .storeId(storeId)
+                .productIdx(productIdx)
                 .productCode(dto.productCode)
                 .name(dto.getName())
                 .price(dto.getPrice())

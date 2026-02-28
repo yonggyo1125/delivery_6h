@@ -1,15 +1,31 @@
 package org.sparta.delivery.store.application.product;
 
 import lombok.RequiredArgsConstructor;
+import org.sparta.delivery.global.domain.service.RoleCheck;
+import org.sparta.delivery.store.application.dto.StoreServiceDto;
+import org.sparta.delivery.store.domain.Store;
+import org.sparta.delivery.store.domain.StoreId;
+import org.sparta.delivery.store.domain.StoreRepository;
+import org.sparta.delivery.store.domain.exception.StoreNotFoundException;
+import org.sparta.delivery.store.domain.service.OwnerCheck;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CreateProductService {
+    private final RoleCheck roleCheck;
+    private final OwnerCheck ownerCheck;
+    private final StoreRepository repository;
 
-    public UUID create() {
-        return null;
+    @Transactional
+    public void create(UUID storeId, StoreServiceDto.Product dto) {
+        Store store = repository.findById(StoreId.of(storeId)).orElseThrow(StoreNotFoundException::new);
+
+        store.createProduct(ProductServiceHelper.toProduct(roleCheck, ownerCheck, dto));
+
+        repository.save(store);
     }
 }

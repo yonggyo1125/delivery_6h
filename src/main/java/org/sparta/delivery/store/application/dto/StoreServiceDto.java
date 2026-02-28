@@ -1,5 +1,6 @@
 package org.sparta.delivery.store.application.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -45,4 +46,33 @@ public class StoreServiceDto {
         private LocalTime breakEnd2;
     }
 
+    //// 상품 S
+    // 상품
+    @Getter
+    @Builder
+    public static class Product {
+        private String productCode;
+        private UUID categoryId;
+        private String name;
+        private int price;
+        private List<ProductOption> options;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class ProductOption {
+        private String name;
+        private int price;
+        private List<ProductSubOption> subOptions;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class ProductSubOption {
+        private String name;
+        private int addPrice;
+    }
+    //// 상품 E
 }
