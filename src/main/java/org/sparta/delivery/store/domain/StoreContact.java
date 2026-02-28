@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreContact {
-    @Column(length=20, name="landline")
+    @Column(length=20)
     private String landline;
 
     @Column(length=65, nullable = false)
