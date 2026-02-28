@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 @Entity
 @Table(name="P_PRODUCT")
 @SQLRestriction("deleted_at IS NULL")
+@Access(AccessType.FIELD)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseUserEntity {
 
