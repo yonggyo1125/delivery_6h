@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.store.domain.*;
+import org.sparta.delivery.store.domain.service.CategoryCheck;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 
 import java.time.DayOfWeek;
@@ -57,6 +58,7 @@ public class StoreDto {
     public static class ProductDto {
         private RoleCheck roleCheck;
         private OwnerCheck ownerCheck;
+        private CategoryCheck categoryCheck;
         private String productCode;
         private UUID categoryId;
         private String name;
@@ -87,6 +89,7 @@ public class StoreDto {
     public static class CategoryDto {
         private RoleCheck roleCheck;
         private OwnerCheck ownerCheck;
+        private CategoryCheck categoryCheck;
         private List<UUID> categoryIds;
     }
 

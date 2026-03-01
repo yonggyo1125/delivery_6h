@@ -7,6 +7,7 @@ import org.sparta.delivery.store.domain.Product;
 import org.sparta.delivery.store.domain.ProductStatus;
 import org.sparta.delivery.store.domain.Store;
 import org.sparta.delivery.store.domain.StoreRepository;
+import org.sparta.delivery.store.domain.service.CategoryCheck;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class ChangeProductService {
     private final RoleCheck roleCheck;
     private final OwnerCheck ownerCheck;
+    private final CategoryCheck categoryCheck;
     private final StoreRepository repository;
 
     // 상품 정보 변경
@@ -26,7 +28,7 @@ public class ChangeProductService {
     public void changeProductInfo(UUID storeId, String productCode, StoreServiceDto.Product dto) {
         Store store = ProductServiceHelper.getStore(storeId, repository, roleCheck, ownerCheck);
 
-        store.changeProduct(productCode, ProductServiceHelper.toProduct(roleCheck, ownerCheck, dto));
+        store.changeProduct(productCode, ProductServiceHelper.toProduct(roleCheck, ownerCheck, categoryCheck, dto));
     }
 
     // 옵션 추가
@@ -73,10 +75,6 @@ public class ChangeProductService {
 
         ProductStatus targetStatus = ProductStatus.valueOf(status.toUpperCase());
 
-        switch (targetStatus) {
-            case READY -> product.changeReadyStatus();
-            case SALE -> product.changeSaleStatus();
-            case STOCK_OUT -> product.changeStockOutStatus();
-        }
+        product.changeStatus(targetStatus);
     }
 }

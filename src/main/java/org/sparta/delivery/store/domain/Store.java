@@ -4,13 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
+import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
-import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
 import org.sparta.delivery.store.domain.dto.StoreDto;
+import org.sparta.delivery.store.domain.exception.InvalidCategoryException;
 import org.sparta.delivery.store.domain.exception.ProductDuplicatedException;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.exception.StoreStatusException;
+import org.sparta.delivery.store.domain.service.CategoryCheck;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 
 import java.time.DayOfWeek;
@@ -88,7 +90,7 @@ public class Store extends BaseUserEntity {
     private List<Product> products;
 
     @Builder
-    public Store(UUID storeId, UUID ownerId, String ownerName, String businessNo, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck) {
+    public Store(UUID storeId, UUID ownerId, String ownerName, String businessNo, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck, CategoryCheck categoryCheck) {
 
         // 등록 권한 체크
         checkAuthority(roleCheck, ownerCheck);
@@ -105,6 +107,7 @@ public class Store extends BaseUserEntity {
                 .builder()
                 .roleCheck(roleCheck)
                 .ownerCheck(ownerCheck)
+                .categoryCheck(categoryCheck)
                 .categoryIds(categoryIds)
                 .build());
     }
@@ -201,6 +204,11 @@ public class Store extends BaseUserEntity {
         // productCode 중복 체크
         checkProductCodeDuplication(dto.getProductCode(), null);
 
+        // 분류 유효성 검사
+        if (!dto.getCategoryCheck().existsInStore(id, dto.getCategoryId())) {
+            throw new InvalidCategoryException("매장에 등록된 분류가 아닙니다.");
+        }
+
         products = Objects.requireNonNullElseGet(products, ArrayList::new);
 
         products.add(StoreDto.toProduct(id, products.size(), dto));
@@ -210,6 +218,11 @@ public class Store extends BaseUserEntity {
     public void changeProduct(String productCode, StoreDto.ProductDto dto) {
         // 권한 체크
         checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
+
+        // 분류 유효성 검사
+        if (!dto.getCategoryCheck().existsInStore(id, dto.getCategoryId())) {
+            throw new InvalidCategoryException("매장에 등록된 분류가 아닙니다.");
+        }
 
         Product product = Optional.ofNullable(getProduct(productCode))
                 .orElseThrow(ProductNotFoundException::new);
@@ -277,6 +290,12 @@ public class Store extends BaseUserEntity {
         checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
 
         List<UUID> categoryIds = dto.getCategoryIds();
+
+        // 분류 유효성 검사
+        if (!dto.getCategoryCheck().exists(categoryIds)) {
+            throw new InvalidCategoryException("유효하지 않은 카테고리가 포함되어 있습니다.");
+        }
+
         if (categoryIds == null || categoryIds.isEmpty()) return;
 
         categories = Objects.requireNonNullElseGet(categories, ArrayList::new);
@@ -293,6 +312,12 @@ public class Store extends BaseUserEntity {
 
     // 카테고리 교체
     public void replaceCategory(StoreDto.CategoryDto dto) {
+
+        // 분류 유효성 검사
+        if (!dto.getCategoryCheck().exists(dto.getCategoryIds())) {
+            throw new InvalidCategoryException("유효하지 않은 카테고리가 포함되어 있습니다.");
+        }
+
         truncateCategory(dto.getRoleCheck(),dto.getOwnerCheck());
         createCategory(dto);
     }

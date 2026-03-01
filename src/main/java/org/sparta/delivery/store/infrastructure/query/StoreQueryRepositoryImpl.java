@@ -1,4 +1,4 @@
-package org.sparta.delivery.store.infrastructure.persistence;
+package org.sparta.delivery.store.infrastructure.query;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.Expressions;

@@ -10,6 +10,7 @@ import org.sparta.delivery.store.domain.StoreRepository;
 import org.sparta.delivery.store.domain.StoreStatus;
 import org.sparta.delivery.store.domain.dto.StoreDto;
 import org.sparta.delivery.store.domain.exception.StoreNotFoundException;
+import org.sparta.delivery.store.domain.service.CategoryCheck;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class ChangeStoreService {
     private final StoreRepository repository;
     private final RoleCheck roleCheck;
     private final OwnerCheck ownerCheck;
+    private final CategoryCheck categoryCheck;
     private final AddressToCoords addressToCoords;
 
     //// 카테고리 S
@@ -115,6 +117,7 @@ public class ChangeStoreService {
         return StoreDto.CategoryDto.builder()
                 .roleCheck(roleCheck)
                 .ownerCheck(ownerCheck)
+                .categoryCheck(categoryCheck)
                 .categoryIds(categoryIds)
                 .build();
     }
