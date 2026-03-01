@@ -41,8 +41,9 @@ public class Category extends BaseUserEntity {
         }
     }
 
-    public Category changeName(String name, RoleCheck roleCheck) {
+    public void changeName(String name, RoleCheck roleCheck) {
+        checkAuthority(roleCheck);
 
-        return new Category(id.getId(), name, roleCheck);
+        this.name = name;
     }
 }
