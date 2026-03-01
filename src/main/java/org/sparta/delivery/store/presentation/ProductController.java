@@ -75,7 +75,7 @@ public class ProductController {
         removeProductService.remove(storeId, productCodes);
     }
 
-    //  RequestDto -> StoreServiceDto (Application 레이어 전용 DTO로 변환) ---
+    //  RequestDto -> StoreServiceDto
     private StoreServiceDto.Product toServiceDto(ProductRequestDto.Save request) {
         return StoreServiceDto.Product.builder()
                 .productCode(request.getProductCode())
