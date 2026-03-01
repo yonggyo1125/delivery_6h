@@ -60,6 +60,11 @@ dependencies {
     testRuntimeOnly 'com.h2database:h2' // 테스트시에는 메모리기반 H2 데이터베이스 사용
     // 스프링 Data JPA + QueryDSL 의존성 S
 
+    // Hibernate Spatial (PostGIS 연동)
+    implementation 'org.hibernate.orm:hibernate-spatial'
+    // JTS (Java Topology Suite) - 공간 연산 라이브러리
+    implementation 'org.locationtech.jts:jts-core:1.19.0'
+
     // MapStruct
     implementation 'org.mapstruct:mapstruct:1.5.3.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'

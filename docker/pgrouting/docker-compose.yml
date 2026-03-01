@@ -1,0 +1,23 @@
+services:
+  pgrouting:
+    image: pgrouting/pgrouting:15-3.3-3.4.1
+    container_name: pgrouting
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - delivery_db_data:/var/lib/postgresql/data
+    networks:
+      - delivery-network
+
+networks:
+  delivery-network:
+    driver: bridge
+
+volumes:
+  delivery_db_data:

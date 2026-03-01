@@ -32,7 +32,9 @@ import java.util.stream.IntStream;
  */
 @Entity
 @ToString @Getter
-@Table(name="P_STORE")
+@Table(name="P_STORE", indexes = {
+        @Index(name = "idx_store_location", columnList = "point")
+})
 @Access(AccessType.FIELD)
 @SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
