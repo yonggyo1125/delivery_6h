@@ -14,7 +14,7 @@ import org.springframework.web.client.RestClient;
 @Component
 @RequiredArgsConstructor
 public class KakaoAddressToCoords implements AddressToCoords {
-    @Value("${kakao.restapi.key}")
+    @Value("${KAKAO_API_KEY}")
     private String apiKey;
 
     private final RestClient restClient = RestClient.builder()

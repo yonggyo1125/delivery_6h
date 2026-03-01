@@ -11,4 +11,9 @@ public class SecurityOwnerCheck implements OwnerCheck {
     public boolean isOwner(UUID storeId) {
         return false;
     }
+
+    @Override
+    public UUID getOwnerId() {
+        return null;
+    }
 }

@@ -11,7 +11,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
-    database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
     properties:
       hibernate:
         show_sql: true

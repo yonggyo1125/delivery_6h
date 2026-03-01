@@ -33,7 +33,9 @@ import java.util.stream.IntStream;
 @Entity
 @ToString @Getter
 @Table(name="P_STORE", indexes = {
-        @Index(name = "idx_store_location", columnList = "point")
+        @Index(name = "idx_store_location_point", columnList = "point"), // 공간 쿼리용 GiST 인덱스
+        @Index(name = "idx_store_owner", columnList = "owner_id"), // 사장님(Owner)별 가게 조회용 인덱스
+        @Index(name = "idx_store_status_created", columnList = "status, created_at"), // 상태(Status) + 생성일(CreatedAt)
 })
 @Access(AccessType.FIELD)
 @SQLRestriction("deleted_at IS NULL")
@@ -55,7 +57,7 @@ public class Store extends BaseUserEntity {
     @Column(length=65, name="store_name", nullable = false)
     private String name; // 매장명
 
-    @Column(length=45, nullable = false)
+    @Column(length=45, nullable = false, unique = true)
     private String businessNo; // 사업자번호
 
     @Embedded
