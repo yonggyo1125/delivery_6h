@@ -1,4 +1,4 @@
-package org.sparta.delivery.global.presentation.exception;
+package org.sparta.delivery.global.domain.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

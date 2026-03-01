@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.sparta.delivery.global.presentation.exception.BadRequestException;
+import org.sparta.delivery.global.domain.exception.BadRequestException;
 import org.sparta.delivery.global.presentation.exception.ErrorResponse;
 import org.sparta.delivery.user.application.*;
 import org.sparta.delivery.user.presentation.dto.*;

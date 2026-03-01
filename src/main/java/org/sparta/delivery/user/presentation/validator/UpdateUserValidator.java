@@ -1,6 +1,6 @@
 package org.sparta.delivery.user.presentation.validator;
 
-import org.sparta.delivery.global.presentation.exception.BadRequestException;
+import org.sparta.delivery.global.domain.exception.BadRequestException;
 import org.sparta.delivery.user.presentation.dto.ChangePasswordRequest;
 import org.sparta.delivery.user.presentation.dto.UpdateUserRequest;
 import org.springframework.util.StringUtils;

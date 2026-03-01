@@ -6,7 +6,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
-import org.sparta.delivery.global.presentation.exception.UnAuthorizedException;
+import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
 import org.sparta.delivery.store.domain.dto.StoreDto;
 import org.sparta.delivery.store.domain.exception.ProductDuplicatedException;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;

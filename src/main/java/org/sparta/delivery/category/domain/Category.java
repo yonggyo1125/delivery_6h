@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import lombok.*;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.service.RoleCheck;
-import org.sparta.delivery.global.presentation.exception.UnAuthorizedException;
+import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
 
 import java.util.List;
 import java.util.UUID;

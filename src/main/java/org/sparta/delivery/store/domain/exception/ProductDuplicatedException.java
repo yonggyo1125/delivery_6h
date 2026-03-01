@@ -1,6 +1,6 @@
 package org.sparta.delivery.store.domain.exception;
 
-import org.sparta.delivery.global.presentation.exception.BadRequestException;
+import org.sparta.delivery.global.domain.exception.BadRequestException;
 
 public class ProductDuplicatedException extends BadRequestException {
     public ProductDuplicatedException() {

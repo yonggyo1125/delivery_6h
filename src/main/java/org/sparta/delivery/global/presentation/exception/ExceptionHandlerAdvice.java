@@ -4,6 +4,7 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sparta.delivery.global.domain.exception.CustomException;
 import org.sparta.delivery.global.infrastructure.message.MessageUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
