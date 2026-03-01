@@ -405,7 +405,7 @@ public class Store extends BaseUserEntity {
             if (!roleCheck.hasRole("OWNER")) {
                 throw new UnAuthorizedException();
             }
-        } else if (!ownerCheck.isOwner(id.getId())) { // 상점 정보 수정인 경우 매장 소유주 확인
+        } else if (!ownerCheck.isOwner(id)) { // 상점 정보 수정인 경우 매장 소유주 확인
             throw new UnAuthorizedException();
         }
     }

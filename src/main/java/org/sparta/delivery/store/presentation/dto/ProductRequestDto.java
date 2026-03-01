@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.UUID;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 @Schema(description = "상품 관련 요청 DTO")
 public class ProductRequestDto {
 

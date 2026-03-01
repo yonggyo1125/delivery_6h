@@ -11,7 +11,14 @@ import org.sparta.delivery.store.application.ChangeStoreService;
 import org.sparta.delivery.store.application.CreateStoreService;
 import org.sparta.delivery.store.application.RemoveStoreService;
 import org.sparta.delivery.store.application.dto.StoreServiceDto;
+import org.sparta.delivery.store.application.query.StoreQueryService;
+import org.sparta.delivery.store.presentation.dto.StoreQueryRequestDto;
 import org.sparta.delivery.store.presentation.dto.StoreRequestDto;
+import org.sparta.delivery.store.presentation.dto.StoreResponseDto;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +26,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "매장 API", description = "매장 관리(등록, 수정, 상태 변경, 삭제)를 담당하는 API")
+@Tag(name = "매장 API", description = "매장 관리 및 조회를 담당하는 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/stores")
 public class StoreController {
+
+    private final StoreQueryService storeQueryService;
 
     private final CreateStoreService createStoreService;
     private final ChangeStoreService changeStoreService;
@@ -98,5 +107,36 @@ public class StoreController {
                 .breakStart2(request.getBreakStart2())
                 .breakEnd2(request.getBreakEnd2())
                 .build();
+    }
+
+    @Operation(summary = "매장 단건 상세 조회", description = "ID를 통해 특정 매장의 모든 공개 정보를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @ApiResponse(responseCode = "404", description = "매장을 찾을 수 없음")
+    @GetMapping("/{storeId}")
+    public StoreResponseDto getStore(@PathVariable UUID storeId) {
+        return storeQueryService.getStore(storeId);
+    }
+
+    @Operation(summary = "매장 다중 조건 검색", description = "카테고리, 이름, 상태, 지역별로 매장을 필터링하여 검색합니다.")
+    @GetMapping
+    public Page<StoreResponseDto> searchStores(
+            @ParameterObject StoreQueryRequestDto.Search request,
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+
+
+        return storeQueryService.searchStores(request.toSearchCondition(), pageable);
+    }
+
+    @Operation(summary = "주변 매장 GPS 조회", description = "현재 위/경도 좌표를 기준으로 반경 내 매장을 가까운 순으로 조회합니다.")
+    @GetMapping("/nearest")
+    public Page<StoreResponseDto> getNearestStores(
+            @ParameterObject StoreQueryRequestDto.Nearest request,
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+
+        return storeQueryService.getNearestStores(
+                request.getLatitude(),
+                request.getLongitude(),
+                request.getRadiusKm(),
+                pageable);
     }
 }

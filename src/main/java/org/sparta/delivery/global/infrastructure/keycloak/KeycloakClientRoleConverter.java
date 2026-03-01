@@ -15,12 +15,20 @@ public class KeycloakClientRoleConverter implements Converter<Jwt, Collection<Gr
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
-        if (realmAccess == null) return Collections.emptyList();
-        Object roles = ((Map<?,?>)realmAccess).get("roles");
-        if (!(roles instanceof Collection)) return Collections.emptyList();
-        return ((Collection<?>)roles).stream()
+
+        if (realmAccess == null || realmAccess.get("roles") == null) {
+            return Collections.emptyList();
+        }
+
+        Object roles = realmAccess.get("roles");
+        if (!(roles instanceof Collection<?> roleList)) {
+            return Collections.emptyList();
+        }
+
+        return roleList.stream()
                 .map(Object::toString)
-                .filter(s -> s.startsWith("ROLE_"))
+                // Keycloak Role에 ROLE_이 없으면 붙여서 GrantedAuthority 생성
+                .map(roleName -> roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

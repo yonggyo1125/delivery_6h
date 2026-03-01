@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.UUID;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 @Schema(description = "매장 카테고리 조작 요청 DTO")
 public class CategoryRequestDto {
 

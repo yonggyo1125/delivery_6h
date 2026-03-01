@@ -2,6 +2,7 @@ package org.sparta.delivery.store.domain.query.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import java.util.UUID;
  * 4. sido는 단일 조회 가능
  * 5. keyword는 매장명, 매장 전화번호, 이메일 중에 키워드가 포함되었는지 체크
  */
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class StoreQueryDto {
     @Getter
     @Builder

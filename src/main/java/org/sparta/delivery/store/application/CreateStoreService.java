@@ -9,6 +9,7 @@ import org.sparta.delivery.store.domain.StoreRepository;
 import org.sparta.delivery.store.domain.service.OwnerCheck;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 
@@ -22,10 +23,10 @@ public class CreateStoreService {
 
     @Transactional
     public UUID create(StoreServiceDto.CreateStore dto) {
-
+        String ownerName = StringUtils.hasText(dto.getOwnerName()) ? dto.getOwnerName() : ownerCheck.getOwnerName();
         Store store = Store.builder()
-                .ownerId(dto.getOwnerId())
-                .ownerName(dto.getOwnerName())
+                .ownerId(ownerCheck.getOwnerId())
+                .ownerName(ownerName)
                 .landline(dto.getLandline())
                 .email(dto.getEmail())
                 .address(dto.getAddress())

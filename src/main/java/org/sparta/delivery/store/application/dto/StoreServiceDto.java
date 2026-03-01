@@ -3,18 +3,19 @@ package org.sparta.delivery.store.application.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class StoreServiceDto {
     @Getter
     @Builder
     public static class CreateStore {
         private UUID storeId;
-        private UUID ownerId;
         private String ownerName;
         private String landline;
         private String email;
