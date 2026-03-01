@@ -50,6 +50,13 @@ public class StoreRequestDto {
         @NotBlank(message = "점주 이름은 필수입니다.")
         private String ownerName;
 
+        @Schema(description = "매장명", example = "스파르타 치킨")
+        @NotBlank(message = "매장명은 필수입니다.")
+        private String name;
+
+        @Schema(description = "매장 설명", example = "스파르타 치킨 설명...")
+        private String description;
+
         @Schema(description = "사업자 번호", example = "123-45-67890")
         @NotBlank(message = "사업자 번호는 필수입니다.")
         private String businessNo;

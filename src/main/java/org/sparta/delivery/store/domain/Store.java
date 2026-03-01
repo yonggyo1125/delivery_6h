@@ -37,6 +37,7 @@ import java.util.stream.IntStream;
 @Table(name="P_STORE", indexes = {
         @Index(name = "idx_store_location_point", columnList = "point"), // 공간 쿼리용 GiST 인덱스
         @Index(name = "idx_store_owner", columnList = "owner_id"), // 사장님(Owner)별 가게 조회용 인덱스
+        @Index(name = "idx_store_name", columnList = "store_name"), // 매장명 검색 성능 향상
         @Index(name = "idx_store_status_created", columnList = "status, created_at"), // 상태(Status) + 생성일(CreatedAt)
 })
 @Access(AccessType.FIELD)
@@ -58,6 +59,9 @@ public class Store extends BaseUserEntity {
 
     @Column(length=65, name="store_name", nullable = false)
     private String name; // 매장명
+
+    @Lob
+    private String description; // 매장 설명
 
     @Column(length=45, nullable = false, unique = true)
     private String businessNo; // 사업자번호
@@ -90,13 +94,15 @@ public class Store extends BaseUserEntity {
     private List<Product> products;
 
     @Builder
-    public Store(UUID storeId, UUID ownerId, String ownerName, String businessNo, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck, CategoryCheck categoryCheck) {
+    public Store(UUID storeId, UUID ownerId, String ownerName, String name, String description, String businessNo, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck, CategoryCheck categoryCheck) {
 
         // 등록 권한 체크
         checkAuthority(roleCheck, ownerCheck);
 
         this.id = storeId == null ? StoreId.of() : StoreId.of(storeId);
         this.owner = new Owner(ownerId, ownerName);
+        this.name = name;
+        this.description = description;
         this.businessNo = businessNo;
         this.contact = new StoreContact(landline, email);
         this.location = new StoreLocation(address, addressToCoords);
@@ -117,10 +123,12 @@ public class Store extends BaseUserEntity {
         // 권한 체크
         checkAuthority(dto.getRoleCheck(), dto.getOwnerCheck());
 
-       owner = new Owner(owner.getId(), dto.getOwnerName());
-       this.businessNo = dto.getBusinessNo();
-       contact = new StoreContact(dto.getLandline(), dto.getEmail());
-       this.location = new StoreLocation(dto.getAddress(), dto.getAddressToCoords());
+        owner = new Owner(owner.getId(), dto.getOwnerName());
+        name = dto.getName();
+        description = dto.getDescription();
+        businessNo = dto.getBusinessNo();
+        contact = new StoreContact(dto.getLandline(), dto.getEmail());
+        location = new StoreLocation(dto.getAddress(), dto.getAddressToCoords());
     }
 
     // 매장 운영 상태 변경

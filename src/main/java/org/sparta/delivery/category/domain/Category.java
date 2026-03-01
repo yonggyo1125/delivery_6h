@@ -26,17 +26,16 @@ public class Category extends BaseUserEntity {
 
     private String name; // 카테고리명
 
-
     @Builder
     public Category(UUID categoryId, String name, RoleCheck roleCheck) {
         // 권한 체크
-        checkPossible(roleCheck);
+        checkAuthority(roleCheck);
 
         this.id = categoryId == null ? CategoryId.of():CategoryId.of(categoryId);
         this.name = name;
     }
 
-    private void checkPossible(RoleCheck roleCheck) {
+    private void checkAuthority(RoleCheck roleCheck) {
         if (!roleCheck.hasRole(List.of("MANAGER", "MASTER"))) {
             throw new UnAuthorizedException();
         }

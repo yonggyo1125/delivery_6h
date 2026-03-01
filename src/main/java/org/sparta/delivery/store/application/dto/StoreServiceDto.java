@@ -17,9 +17,13 @@ public class StoreServiceDto {
     public static class CreateStore {
         private UUID storeId;
         private String ownerName;
+        private String name; // 매장명
+        private String description; // 매장 설명
+        private String businessNo;
         private String landline;
         private String email;
         private String address;
+
         private List<UUID> categoryId;
     }
 
@@ -28,6 +32,8 @@ public class StoreServiceDto {
     @Builder
     public static class StoreInfo {
         private String ownerName;
+        private String name; // 매장명
+        private String description; // 매장 설명
         private String businessNo;
         private String landline;
         private String email;

@@ -90,6 +90,8 @@ public class ChangeStoreService {
                         .roleCheck(roleCheck)
                         .ownerCheck(ownerCheck)
                         .ownerName(dto.getOwnerName())
+                        .name(dto.getName())
+                        .description(dto.getDescription())
                         .businessNo(dto.getBusinessNo())
                         .landline(dto.getLandline())
                         .email(dto.getEmail())

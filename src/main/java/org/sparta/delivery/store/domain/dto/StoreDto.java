@@ -22,6 +22,8 @@ public class StoreDto {
         private RoleCheck roleCheck;
         private OwnerCheck ownerCheck;
         private String ownerName;
+        private String name;
+        private String description;
         private String businessNo;
         private String landline;
         private String email;
