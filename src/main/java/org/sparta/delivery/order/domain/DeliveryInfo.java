@@ -22,6 +22,8 @@ public class DeliveryInfo {
 
     @Builder
     protected DeliveryInfo(String address, String addressDetail, String memo) {
-
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.memo = memo;
     }
 }

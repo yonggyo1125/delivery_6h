@@ -3,8 +3,11 @@ package org.sparta.delivery.store.infrastructure;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.sparta.delivery.category.domain.QCategory;
+import org.sparta.delivery.store.domain.Store;
+import org.sparta.delivery.store.domain.StoreCategory;
 import org.sparta.delivery.store.domain.StoreId;
 import org.sparta.delivery.store.domain.StoreRepository;
+import org.sparta.delivery.store.domain.exception.StoreNotFoundException;
 import org.sparta.delivery.store.domain.service.CategoryCheck;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +39,10 @@ public class CategoryCheckImpl implements CategoryCheck {
     @Override
     // 상품등록,수정시 매장이 가지고 있는 분류인지 체크
     public boolean existsInStore(StoreId storeId, UUID categoryId) {
-        return storeRepository.existsByStoreIdAndCategoryId(storeId, categoryId);
+        Store store = storeRepository.findById(storeId).orElseThrow(StoreNotFoundException::new);
+        List<StoreCategory> storeCategories = store.getCategories();
+        if (storeCategories == null || storeCategories.isEmpty()) return false;
+
+        return storeCategories.stream().anyMatch(s -> s.getCategoryId().equals(categoryId));
     }
 }

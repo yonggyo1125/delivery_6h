@@ -2,7 +2,7 @@ package org.sparta.delivery.category.presentation;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.sparta.delivery.category.application.CreateCategoryService;
+import org.sparta.delivery.category.application.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/v1/category")
 public class CategoryController {
-    private final CreateCategoryService createService;
+    private final CategoryService createService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201

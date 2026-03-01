@@ -1,6 +1,7 @@
 package org.sparta.delivery.order.domain;
 
 public enum OrderStatus {
+    ORDER_CREATING, // 주문생성중
     ORDER_ACCEPT, // 주문접수
     PAYMENT_CONFIRM, // 입금 확인
     PREPARING, // 배달 준비중

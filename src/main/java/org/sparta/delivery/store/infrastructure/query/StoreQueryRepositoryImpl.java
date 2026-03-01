@@ -118,6 +118,9 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
         // 데이터 조회
         List<Store> items = queryFactory
                 .selectFrom(store)
+                .distinct()
+                .leftJoin(store.categories)
+                .fetchJoin()
                 .where(andBuilder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

@@ -10,8 +10,8 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductInfo {
     @Column(length=45, name="item_code", nullable = false)
-    private String code;
+    private String code; // 상품 ProductCode
 
     @Column(length=100, name="item_name", nullable = false)
-    private String name;
+    private String name; // 상품명
 }
