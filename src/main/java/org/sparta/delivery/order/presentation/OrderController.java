@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Tag(name = "Order Query API", description = "주문 조회 관련 API")
 @RestController
-@RequestMapping("/v1/order")
+@RequestMapping("/v1/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
