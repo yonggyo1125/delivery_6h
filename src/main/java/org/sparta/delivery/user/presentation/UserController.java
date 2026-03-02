@@ -28,7 +28,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/user")
+@RequestMapping("/v1/users")
 @Tag(name = "회원 API", description = "회원의 인증/인가, 가입, 수정 및 권한 관리 기능을 제공합니다.")
 public class UserController {
     private final GenerateTokenService tokenService;

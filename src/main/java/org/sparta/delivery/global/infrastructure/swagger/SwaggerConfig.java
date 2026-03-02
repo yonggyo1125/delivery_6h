@@ -18,7 +18,7 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("회원 관리")
                 .displayName("회원 API")
-                .pathsToMatch("/v1/user/**")
+                .pathsToMatch("/v1/users/**")
                 .build();
     }
 
@@ -37,7 +37,7 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("주문 관리")
                 .displayName("주문 API")
-                .pathsToMatch("/v1/order/**")
+                .pathsToMatch("/v1/orders/**")
                 .build();
     }
 
