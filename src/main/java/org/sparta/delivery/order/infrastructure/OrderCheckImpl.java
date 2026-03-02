@@ -1,6 +1,7 @@
 package org.sparta.delivery.order.infrastructure;
 
 import lombok.RequiredArgsConstructor;
+import org.sparta.delivery.global.domain.service.UserDetails;
 import org.sparta.delivery.order.domain.OrderId;
 import org.sparta.delivery.order.domain.OrderItem;
 import org.sparta.delivery.order.domain.OrderRepository;
@@ -9,8 +10,6 @@ import org.sparta.delivery.store.domain.Product;
 import org.sparta.delivery.store.domain.Store;
 import org.sparta.delivery.store.domain.StoreId;
 import org.sparta.delivery.store.domain.StoreRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,6 +21,7 @@ public class OrderCheckImpl implements OrderCheck {
 
     private final StoreRepository storeRepository;
     private final OrderRepository orderRepository;
+    private final UserDetails userDetails;
 
     @Override
     public boolean isOrderable(UUID storeId, List<OrderItem> items) {
@@ -53,9 +53,21 @@ public class OrderCheckImpl implements OrderCheck {
 
     @Override
     public boolean isMyOrder(OrderId orderId) {
+        if (orderId == null) return false;
 
+        // 현재 로그인한 사용자 정보 확인
+        if (!userDetails.isAuthenticated()) {
+            return false;
+        }
 
+        UUID userId = userDetails.getId();
+        if (userId == null) {
+            return false;
+        }
 
-        return false;
+        // 주문 정보를 조회하여 주문자(Orderer) ID와 현재 사용자 ID 비교
+        return orderRepository.findById(orderId)
+                .map(order -> order.getOrderer().getId().equals(userId))
+                .orElse(false);
     }
 }

@@ -8,12 +8,14 @@ import org.sparta.delivery.global.domain.exception.BadRequestException;
 import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
 import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.sparta.delivery.global.domain.service.RoleCheck;
+import org.sparta.delivery.global.domain.service.UserDetails;
 import org.sparta.delivery.global.infrastructure.event.Events;
 import org.sparta.delivery.order.domain.event.OrderAcceptEvent;
 import org.sparta.delivery.order.domain.event.OrderRefundEvent;
 import org.sparta.delivery.order.domain.exception.InvalidOrderItemException;
 import org.sparta.delivery.order.domain.exception.OrderItemNotExistException;
 import org.sparta.delivery.order.domain.service.OrderCheck;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,6 +35,7 @@ import java.util.UUID;
  *      - 입금 확인 전 : 주문 취소 상태(ORDER_CANCEL)
  *      - 입금 완료 후 : 주문 환불 상태(ORDER_REFUND) / 결제 취소 진행(이벤트 발생)
  * 5. 배송중 주문 상태는 입금 확인이 되어야만 변경 가능
+ * 6. 배송정보 변경은 배송중 이전 단계에서만 가능
  */
 
 @Entity
@@ -70,16 +73,23 @@ public class Order extends BaseUserEntity {
     private OrderStatus status;
 
     @Builder
-    public Order(UUID orderId, UUID ordererId, String ordererName, String ordererEmail, UUID storeId, String storeName, String storeAddress, String storeTel, List<OrderItem> orderItems, String deliveryAddress, String deliveryAddressDetail, String deliveryMemo, OrderCheck orderCheck) {
+    public Order(UUID orderId, String ordererName, String ordererEmail, UUID storeId, String storeName, String storeAddress, String storeTel, List<OrderItem> orderItems, String deliveryAddress, String deliveryAddressDetail, String deliveryMemo, OrderCheck orderCheck, UserDetails userDetails) {
+
+        // 로그인 여부 체크
+        checkAuthenticated(userDetails);
+
         this.id = orderId == null ? OrderId.of() : OrderId.of(orderId);
-        this.orderer = new Orderer(ordererId, ordererName, ordererEmail); // 주문자
+        this.orderer = new Orderer(
+                    userDetails.getId(),
+                    StringUtils.hasText(ordererName) ? ordererName : userDetails.getName(),
+                    StringUtils.hasText(ordererEmail) ? ordererEmail : userDetails.getEmail()
+        );
         this.storeInfo = new StoreInfo(storeId, storeName, storeAddress, storeTel); // 매장 정보
         this.deliveryInfo = new DeliveryInfo(deliveryAddress, deliveryAddressDetail, deliveryMemo); // 배송 정보
         this.status = OrderStatus.ORDER_CREATING; // 주문 생성 중
         setOrderItems(orderItems, orderCheck);
         calculateTotalOrderPrice();
     }
-
 
     private void setOrderItems(List<OrderItem> orderItems, OrderCheck orderCheck) {
         if (orderItems == null || orderItems.isEmpty()) {
@@ -98,7 +108,7 @@ public class Order extends BaseUserEntity {
     }
 
     // 주문 접수
-    public void  orderAccept(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
+    public void orderAccept(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
         // 권한 체크
         checkAuthority(roleCheck, ownerCheck, orderCheck);
 
@@ -146,6 +156,10 @@ public class Order extends BaseUserEntity {
         this.status = OrderStatus.DELIVERY;
     }
 
+    public void changeDeliveryInfo(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
+
+    }
+
     /**
      * 주문서 정보 변경 가능 여부 체크
      *
@@ -161,5 +175,12 @@ public class Order extends BaseUserEntity {
         }
 
         throw new UnAuthorizedException();
+    }
+
+    // 로그인 여부 체크
+    private void checkAuthenticated(UserDetails userDetails) {
+        if (userDetails.getId() == null || !userDetails.isAuthenticated()) {
+            throw new UnAuthorizedException("로그인이 필요한 서비스입니다.");
+        }
     }
 }

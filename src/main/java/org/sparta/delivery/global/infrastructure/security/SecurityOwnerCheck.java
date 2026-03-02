@@ -2,11 +2,9 @@ package org.sparta.delivery.global.infrastructure.security;
 
 import lombok.RequiredArgsConstructor;
 import org.sparta.delivery.global.domain.service.OwnerCheck;
+import org.sparta.delivery.global.domain.service.UserDetails;
 import org.sparta.delivery.store.domain.QStore;
 import org.sparta.delivery.store.domain.StoreRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -15,49 +13,31 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SecurityOwnerCheck implements OwnerCheck {
     private final StoreRepository repository;
+    private final UserDetails userDetails;
+
     @Override
     public boolean isOwner(UUID storeId) {
         if (storeId == null) return false;
 
-        UUID ownerId = getOwnerId();
-        if (ownerId == null) return false; // 로그인하지 않은 경우
+        UUID ownerId = userDetails.getId();
+        if (ownerId == null || !userDetails.isAuthenticated()) {
+            return false;
+        }
 
         QStore store = QStore.store;
-
-        return repository.exists(store.id.id.eq(storeId).and(store.owner.id.eq(ownerId)));
+        return repository.exists(
+                store.id.id.eq(storeId)
+                        .and(store.owner.id.eq(ownerId))
+        );
     }
 
     @Override
     public UUID getOwnerId() {
-        Jwt jwt = getJwt();
-        if (jwt != null) {
-            try {
-                return UUID.fromString(jwt.getSubject());
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-
-        return null;
+        return userDetails.getId();
     }
 
     @Override
     public String getOwnerName() {
-        Jwt jwt = getJwt();
-        if (jwt != null) {
-            String firstName = jwt.getClaimAsString("first_name");
-            String lastName = jwt.getClaimAsString("last_name");
-
-            return "%s%s".formatted(lastName,firstName);
-        }
-        return null;
-    }
-
-    private Jwt getJwt() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
-            return jwt;
-        }
-        return null;
+        return userDetails.getName();
     }
 }

@@ -32,7 +32,6 @@ public class CreateOrderService {
 
         Order order = Order.builder()
                 .orderCheck(orderCheck)
-                .ordererId(orderInfo.ordererId())
                 .ordererName(orderInfo.ordererName())
                 .ordererEmail(orderInfo.ordererEmail())
                 .deliveryAddress(orderInfo.deliveryAddress())
