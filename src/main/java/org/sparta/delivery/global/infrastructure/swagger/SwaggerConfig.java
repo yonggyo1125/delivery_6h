@@ -36,7 +36,6 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("매장 및 상품 관리")
                 .displayName("매장/상품 API")
-                // 매장(/v1/stores)과 상품(/v1/stores/**/products)을 하나의 그룹으로 묶음
                 .pathsToMatch("/v1/stores/**")
                 .build();
     }

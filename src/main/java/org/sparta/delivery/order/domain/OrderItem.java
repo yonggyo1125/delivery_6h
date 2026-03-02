@@ -19,7 +19,7 @@ public class OrderItem {
 
     private int quantity;
 
-    @Column(columnDefinition = "jsonb")
+    @Column(name="options", columnDefinition = "jsonb")
     private List<SelectedOption> selectedOptions;
 
     @AttributeOverrides(
