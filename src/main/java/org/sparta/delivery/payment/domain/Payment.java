@@ -9,6 +9,14 @@ import org.sparta.delivery.payment.domain.exception.InvalidPaymentException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * 결제 진행 절차
+ * 1. 주문서가 주문 접수 상태로 변경되면 OrderAcceptedEvent 이벤트 발생
+ * 2. OrderAcceptedEvent 이벤트를 처리하는 핸들러에서 결제 등록(DB에 하나 저장)
+ * 3. 프론트엔드에서 orderId(주문번호), OrderName(주문상품), amount(결제금액)으로 결제 진행
+ * 4. 성공 콜백으로 백엔드 엔드포인트로 paymentKey,orderId, amount 값이 넘어옴
+ * 5. 백엔드 앤드포인트에서는 승인 처리를 하고 성공시 approve 처리, 실패시 abort 처리
+ */
 @Entity
 @ToString
 @Getter
