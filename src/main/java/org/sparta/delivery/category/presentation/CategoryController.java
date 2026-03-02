@@ -16,6 +16,6 @@ public class CategoryController {
     @ResponseStatus(HttpStatus.CREATED) // 201
     public void create(@RequestBody @Valid CategoryRequest req) {
 
-        createService.create(req.id(), req.name());
+
     }
 }

@@ -3,21 +3,23 @@ package org.sparta.delivery.category.domain;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
-import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
+import org.sparta.delivery.global.domain.service.RoleCheck;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * 1. 카테고리는 관리자(MANAGER, MASTER)만 가능해야 한다.
- * 2. 카테고리는 이름만 변경 가능하고 새로운 카테고리 객체를 반환
+ * 카테고리는 관리자(MANAGER, MASTER)만 가능해야 한다.
+ *
  */
-
 @Getter
 @ToString
 @Entity
+@SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category extends BaseUserEntity {
 
@@ -41,9 +43,18 @@ public class Category extends BaseUserEntity {
         }
     }
 
-    public void changeName(String name, RoleCheck roleCheck) {
+    // 카테고리 변경
+    public void change(String name, RoleCheck roleCheck) {
         checkAuthority(roleCheck);
 
         this.name = name;
     }
+
+    // 카테고리 제거
+    public void remove(RoleCheck roleCheck) {
+        checkAuthority(roleCheck);
+
+        deletedAt = LocalDateTime.now();
+    }
+
 }
