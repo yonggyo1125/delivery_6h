@@ -26,4 +26,9 @@ public class SecurityUserDetails implements UserDetails {
     public String getMobile() {
         return "";
     }
+
+    @Override
+    public boolean isAuthenticated() {
+        return false;
+    }
 }

@@ -8,4 +8,5 @@ public interface UserDetails {
     String getName();
     String getEmail();
     String getMobile();
+    boolean isAuthenticated(); // 로그인 여부
 }
