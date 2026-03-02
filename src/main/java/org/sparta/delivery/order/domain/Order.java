@@ -10,8 +10,9 @@ import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.global.domain.service.UserDetails;
 import org.sparta.delivery.global.infrastructure.event.Events;
-import org.sparta.delivery.order.domain.event.OrderAcceptEvent;
-import org.sparta.delivery.order.domain.event.OrderRefundEvent;
+import org.sparta.delivery.order.domain.event.OrderAcceptedEvent;
+import org.sparta.delivery.order.domain.event.OrderDoneEvent;
+import org.sparta.delivery.order.domain.event.OrderRefundedEvent;
 import org.sparta.delivery.order.domain.exception.InvalidOrderItemException;
 import org.sparta.delivery.order.domain.exception.OrderItemNotExistException;
 import org.sparta.delivery.order.domain.service.OrderCheck;
@@ -38,6 +39,7 @@ import static org.sparta.delivery.order.domain.OrderStatus.*;
  *      - 입금 완료 후 : 주문 환불 상태(ORDER_REFUND) / 결제 취소 진행(이벤트 발생)
  * 5. 배송중 주문 상태는 입금 확인이 되어야만 변경 가능
  * 6. 배송정보 변경은 배송중 이전 단계에서만 가능
+ * 7. 주문완료(ORDER_DONE)으로 변경하면 후기 작성 요청 이벤트 발생 시킨다.
  */
 
 @Entity
@@ -117,7 +119,7 @@ public class Order extends BaseUserEntity {
         this.status = ORDER_ACCEPT;
 
         // 주문 접수 후 이벤트 발생 시키기 - 메일 전송
-        Events.trigger(new OrderAcceptEvent(id.getId()));
+        Events.trigger(new OrderAcceptedEvent(id.getId()));
     }
 
     // 주문 취소
@@ -138,7 +140,7 @@ public class Order extends BaseUserEntity {
             this.status = OrderStatus.ORDER_REFUND;
 
             // 결제 취소 요청 이벤트 트리거
-            Events.trigger(new OrderRefundEvent(id.getId()));
+            Events.trigger(new OrderRefundedEvent(id.getId()));
         }
     }
 
@@ -156,6 +158,24 @@ public class Order extends BaseUserEntity {
         checkAuthority(roleCheck, ownerCheck, orderCheck);
 
         this.status = OrderStatus.DELIVERY;
+    }
+
+    /**
+     * 주문완료 처리
+     * 후기 작성을 위해서 주문 완료 이벤트를 발생 시킵니다.
+     * 주문완료 처리는 매장 점주, 관리자(MANAGER, MASTER)만 가능
+     * 배송 완료(DELIVERY_DONE) 상태에서만 ORDER_DONE 상태로 변경 가능
+     */
+    public void done(RoleCheck roleCheck, OwnerCheck ownerCheck) {
+        if (status != DELIVERY_DONE) {
+            return;
+        }
+
+        checkAuthority(roleCheck, ownerCheck, null);
+
+        this.status = ORDER_DONE;
+
+        Events.trigger(new OrderDoneEvent(id.getId()));
     }
 
     /**
@@ -192,9 +212,10 @@ public class Order extends BaseUserEntity {
     private void checkAuthority(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
 
         // 관리자 & 매장 점주 & 자신의 주문인 경우 true
-        if (roleCheck.hasRole(List.of("MASTER", "MANAGER")) || ownerCheck.isOwner(storeInfo.getStoreId()) || orderCheck.isMyOrder(id)) {
+        if (roleCheck.hasRole(List.of("MASTER", "MANAGER")) || ownerCheck.isOwner(storeInfo.getStoreId())) {
             return;
         }
+        if (orderCheck != null && !orderCheck.isMyOrder(id)) return;
 
         throw new UnAuthorizedException();
     }
