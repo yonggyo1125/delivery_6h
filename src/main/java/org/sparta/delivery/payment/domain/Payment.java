@@ -2,10 +2,9 @@ package org.sparta.delivery.payment.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.sparta.delivery.payment.domain.exception.InvalidPaymentException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,13 +15,19 @@ import java.util.UUID;
 @Table(name="P_PAYMENT")
 @Access(AccessType.FIELD)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Payment {
+public class Payment extends BaseUserEntity {
     @EmbeddedId
     private PaymentId id;
 
-    @Embedded
-    private PaymentInfo paymentInfo; // 결제 처리 정보
+    @Column(length=45, name="payment_key")
+    private String key;
+
+    @Column(length=30, nullable = false, name="payment_status")
+    private PaymentStatus status;
+
+    @Column(nullable = false)
+    public LocalDateTime requestedAt; // 결제 요청일시
+    private LocalDateTime approvedAt; // 결제 승인일시
 
     @Embedded
     private PaymentOrderInfo paymentOrderInfo; // 결제 상품 정보
@@ -35,21 +40,37 @@ public class Payment {
     )
     private Price amount; // 결제 금액
 
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @CreatedBy
-    @Column(length=45, updatable = false)
-    protected String createdBy;
-
     @Builder
-    public Payment(UUID paymentId, String paymentKey, PaymentStatus status, LocalDateTime requestedAt, LocalDateTime approvedAt, UUID orderId, String orderName, int amount, String paymentLog) {
+    public Payment(UUID paymentId,  PaymentStatus status, LocalDateTime requestedAt, UUID orderId, String orderName, int amount, String paymentLog) {
         this.id = paymentId == null ? PaymentId.of() : PaymentId.of(paymentId);
-        this.paymentInfo = new PaymentInfo(paymentKey, status, requestedAt, approvedAt);
+        this.status = status;
+
         this.paymentOrderInfo = new PaymentOrderInfo(orderId, orderName);
 
+        this.requestedAt = requestedAt != null ? requestedAt : LocalDateTime.now();
         this.paymentLog = paymentLog;
         this.amount = new Price(amount);
+    }
+
+    // 결제 승인 완료 처리
+    public void approve(String key, LocalDateTime approvedAt, String paymentLog) {
+        // READY 또는 IN_PROGRESS 상태에서만 승인 가능
+        if (this.status != PaymentStatus.READY && this.status != PaymentStatus.IN_PROGRESS) {
+            throw new InvalidPaymentException("결제 승인이 가능한 상태가 아닙니다.");
+        }
+
+        if (key == null || key.isBlank()) {
+            throw new InvalidPaymentException("결제 키(paymentKey)는 필수입니다.");
+        }
+
+        this.key = key;
+        this.paymentLog = paymentLog;
+        this.status = PaymentStatus.DONE;
+        this.approvedAt = approvedAt != null ? approvedAt : LocalDateTime.now();
+    }
+
+    // 결제 실패/취소 처리
+    public void abort() {
+        this.status = PaymentStatus.ABORTED;
     }
 }
