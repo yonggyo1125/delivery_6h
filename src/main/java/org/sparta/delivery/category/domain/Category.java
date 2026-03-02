@@ -56,5 +56,4 @@ public class Category extends BaseUserEntity {
 
         deletedAt = LocalDateTime.now();
     }
-
 }

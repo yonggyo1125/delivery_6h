@@ -73,6 +73,11 @@ public class CategoryService {
         return items;
     }
 
+    // 카테고리 전체 조회
+    public List<Category> getCategories() {
+        return repository.findAll();
+    }
+
     private Category toCategory(CategoryServiceDto.Category category) {
         return Category.builder()
                 .categoryId(category.getId())
