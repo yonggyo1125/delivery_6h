@@ -55,7 +55,10 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
             authBuilder.or(order.orderer.id.eq(userDetails.getId()));
 
             // 내가 운영하는 매장의 주문이거나 (점주 권한)
-            authBuilder.or(order.storeInfo.storeId.in(ownerCheck.getStoreId()));
+            UUID myStoreId = ownerCheck.getStoreId();
+            if (myStoreId != null) {
+                authBuilder.or(order.storeInfo.storeId.eq(myStoreId));
+            }
 
             builder.and(authBuilder);
         }
