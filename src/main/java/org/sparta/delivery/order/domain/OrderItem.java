@@ -45,8 +45,11 @@ public class OrderItem {
 
     private void calculateTotalPrice() {
         int optionsSum = selectedOptions == null ? 0 : selectedOptions.stream()
-                .mapToInt(opt -> opt.getOptionPrice() +
-                        opt.getSubOptions().stream().mapToInt(SelectedOption.SelectedSubOption::getAddPrice).sum())
+                .mapToInt(opt -> {
+                    int subSum = opt.getSubOptions() == null ? 0 :
+                            opt.getSubOptions().stream().mapToInt(SelectedOption.SelectedSubOption::getAddPrice).sum();
+                    return opt.getOptionPrice() + subSum;
+                })
                 .sum();
 
         this.totalPrice = new Price((item.getPrice().getValue() + optionsSum) * quantity);
@@ -54,8 +57,10 @@ public class OrderItem {
 
 
     private void setSelectedOptions(UUID storeId, String itemCode, List<SelectedOption> selectedOptions, OptionCheck optionCheck) {
+        if (selectedOptions == null || selectedOptions.isEmpty()) return;
+
         // 실제 등록된 옵션인지 체크
-        if (optionCheck.validate(storeId, itemCode, selectedOptions)) {
+        if (!optionCheck.validate(storeId, itemCode, selectedOptions)) {
             throw new InvalidOrderItemException("주문이 불가한 옵션이 포함되어 있습니다.");
         }
 
