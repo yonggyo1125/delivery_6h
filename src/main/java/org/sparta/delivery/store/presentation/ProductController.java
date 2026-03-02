@@ -9,7 +9,12 @@ import org.sparta.delivery.store.application.dto.StoreServiceDto;
 import org.sparta.delivery.store.application.product.ChangeProductService;
 import org.sparta.delivery.store.application.product.CreateProductService;
 import org.sparta.delivery.store.application.product.RemoveProductService;
+import org.sparta.delivery.store.application.query.ProductQueryService;
+import org.sparta.delivery.store.domain.query.dto.ProductQueryDto;
+import org.sparta.delivery.store.presentation.dto.ProductQueryRequestDto;
 import org.sparta.delivery.store.presentation.dto.ProductRequestDto;
+import org.sparta.delivery.store.presentation.dto.ProductResponseDto;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +27,34 @@ import java.util.UUID;
 @RequestMapping("/v1/stores/{storeId}/products")
 public class ProductController {
 
+    private final ProductQueryService productQueryService;
     private final CreateProductService createProductService;
     private final ChangeProductService changeProductService;
     private final RemoveProductService removeProductService;
+
+    @Operation(summary = "상품 단건 조회", description = "매장 내 특정 상품 코드로 상세 정보를 조회합니다.")
+    @GetMapping("/{productCode}")
+    public ProductResponseDto getProduct(
+            @Parameter(description = "매장 ID") @PathVariable UUID storeId,
+            @Parameter(description = "상품 코드") @PathVariable String productCode) {
+        return productQueryService.getProduct(storeId, productCode);
+    }
+
+    @Operation(summary = "상품 목록 조회", description = "검색 조건에 맞는 매장 내 메뉴 목록을 조회합니다.")
+    @GetMapping
+    public List<ProductResponseDto> getProducts(
+            @Parameter(description = "매장 ID") @PathVariable UUID storeId,
+            @ParameterObject ProductQueryRequestDto request) {
+
+        ProductQueryDto.Search searchCondition = ProductQueryDto.Search.builder()
+                .name(request.name())
+                .productCodes(request.productCodes())
+                .categoryIds(request.categoryIds())
+                .keyword(request.keyword())
+                .build();
+
+        return productQueryService.getProducts(storeId, searchCondition);
+    }
 
     @Operation(summary = "상품 등록", description = "매장에 새로운 메뉴를 등록합니다.")
     @PostMapping

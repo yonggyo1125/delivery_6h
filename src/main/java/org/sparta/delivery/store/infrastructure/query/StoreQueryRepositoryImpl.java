@@ -39,7 +39,7 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
         return Optional.ofNullable(
                 queryFactory
                         .selectFrom(store)
-                        .where(store.id.eq(id))
+                        .where(store.id.eq(id).and(store.deletedAt.isNull()))
                         .fetchOne()
         );
     }
@@ -54,6 +54,7 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
          */
         QStore store = QStore.store;
         BooleanBuilder andBuilder = new BooleanBuilder();
+        andBuilder.and(store.deletedAt.isNull()); // 미삭제된 상품만 조회
 
         // 매장 상태 권한 처리
         // 관리자(MANAGER, MASTER)는 모든 상태 조회 가능하므로 필터링 생략
@@ -153,7 +154,9 @@ public class StoreQueryRepositoryImpl implements StoreQueryRepository {
         // 좌표에서 가까운 매장 조회
         BooleanBuilder andBuilder = new BooleanBuilder();
         andBuilder.and(store.status.in(StoreStatus.PREPARING, StoreStatus.OPEN)) // 영업 준비중, 운영중 업체만
-                .and(distanceMeter.loe(radiusKm * 1000));  // 반경 N km 이내
+                .and(distanceMeter.loe(radiusKm * 1000)) // 반경 N km 이내
+                .and(store.deletedAt.isNull()); // 미삭제된 상품만 조회
+
         List<Store> items = queryFactory
                 .selectFrom(store)
                 .where(andBuilder)
