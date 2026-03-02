@@ -9,7 +9,7 @@ import org.sparta.delivery.store.domain.dto.StoreDto;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.exception.StoreNotFoundException;
 import org.sparta.delivery.store.domain.service.CategoryCheck;
-import org.sparta.delivery.store.domain.service.OwnerCheck;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
 
 import java.util.Collections;
 import java.util.List;

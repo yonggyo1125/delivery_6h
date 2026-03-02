@@ -6,7 +6,7 @@ import org.sparta.delivery.store.domain.Store;
 import org.sparta.delivery.store.domain.StoreId;
 import org.sparta.delivery.store.domain.StoreRepository;
 import org.sparta.delivery.store.domain.exception.StoreNotFoundException;
-import org.sparta.delivery.store.domain.service.OwnerCheck;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

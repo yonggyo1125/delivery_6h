@@ -1,14 +1,16 @@
 package org.sparta.delivery.order.application;
 
 import lombok.RequiredArgsConstructor;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
+import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.order.application.dto.OrderInfoDto;
 import org.sparta.delivery.order.application.dto.OrderItemDto;
 import org.sparta.delivery.order.domain.Order;
 import org.sparta.delivery.order.domain.OrderItem;
 import org.sparta.delivery.order.domain.OrderRepository;
+import org.sparta.delivery.order.domain.service.OrderCheck;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,15 +20,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CreateOrderService {
     private final OrderRepository orderRepository;
-    
-    // MapStruct 라이브러, ModelMapper
+    private final RoleCheck roleCheck;
+    private final OwnerCheck ownerCheck;
+    private final OrderCheck orderCheck;
+
+    @Transactional
     @PreAuthorize("hasRole('USER')")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public UUID create(OrderInfoDto orderInfo, List<OrderItemDto> items) {
 
         List<OrderItem> orderItems = toOrderItem(items);
 
         Order order = Order.builder()
+                .orderCheck(orderCheck)
                 .ordererId(orderInfo.ordererId())
                 .ordererName(orderInfo.ordererName())
                 .ordererEmail(orderInfo.ordererEmail())
@@ -37,7 +42,7 @@ public class CreateOrderService {
                 .build();
 
         // 주문 접수 상태 변경 - 도메인 로직
-        order.orderAccept();
+        order.orderAccept(roleCheck, ownerCheck, orderCheck);
 
         orderRepository.save(order);
 

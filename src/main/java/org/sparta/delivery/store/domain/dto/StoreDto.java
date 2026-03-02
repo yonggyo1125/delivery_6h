@@ -7,7 +7,7 @@ import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.store.domain.*;
 import org.sparta.delivery.store.domain.service.CategoryCheck;
-import org.sparta.delivery.store.domain.service.OwnerCheck;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;

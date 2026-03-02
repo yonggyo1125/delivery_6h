@@ -1,6 +1,7 @@
 package org.sparta.delivery.order.infrastructure;
 
 import lombok.RequiredArgsConstructor;
+import org.sparta.delivery.order.domain.OrderId;
 import org.sparta.delivery.order.domain.OrderItem;
 import org.sparta.delivery.order.domain.service.OrderCheck;
 import org.sparta.delivery.store.domain.Product;
@@ -44,5 +45,12 @@ public class OrderCheckImpl implements OrderCheck {
             Product product = store.getProduct(orderItem.getItem().getCode());
             return product != null && product.isOrderable();
         });
+    }
+
+    @Override
+    public boolean isMyOrder(OrderId orderId) {
+
+
+        return false;
     }
 }

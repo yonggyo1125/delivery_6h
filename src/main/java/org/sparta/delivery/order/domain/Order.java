@@ -5,6 +5,9 @@ import lombok.*;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
 import org.sparta.delivery.global.domain.exception.BadRequestException;
+import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
+import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.global.infrastructure.event.Events;
 import org.sparta.delivery.order.domain.event.OrderAcceptEvent;
 import org.sparta.delivery.order.domain.event.OrderRefundEvent;
@@ -95,7 +98,10 @@ public class Order extends BaseUserEntity {
     }
 
     // 주문 접수
-    public void  orderAccept() {
+    public void  orderAccept(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
+        // 권한 체크
+        checkAuthority(roleCheck, ownerCheck, orderCheck);
+
         this.status = OrderStatus.ORDER_ACCEPT;
 
         // 주문 접수 후 이벤트 발생 시키기 - 메일 전송
@@ -103,7 +109,10 @@ public class Order extends BaseUserEntity {
     }
 
     // 주문 취소
-    public void cancel() {
+    public void cancel(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
+        // 권한 체크
+        checkAuthority(roleCheck, ownerCheck, orderCheck);
+
         //  주문 접수 상태(입금 전) + 5분 이내 취소 시 -> 단순 주문 취소
         if (status == OrderStatus.ORDER_ACCEPT) {
             if (createdAt == null || LocalDateTime.now().isBefore(createdAt.plusMinutes(5L))) {
@@ -126,11 +135,31 @@ public class Order extends BaseUserEntity {
      * 배송 시작은 입금 확인 후 진행, 그러나 배송지가 매장에서 배송 가능한 지역이 아니라면 배송 불가 함
      * 매장별 배송 불가 지역 체크 필요, 그러나 이 기능은 다른 도메인 기능이 필요하므로 도메인 서비스로 추가, 단순히 도메인 서비스에 주문 도메인의 delivery상태 변경 로직은 실행
      */
-    public void delivery() {
+    public void delivery(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
         if (this.status != OrderStatus.PAYMENT_CONFIRM) {
             return;
         }
 
+        // 권한 체크
+        checkAuthority(roleCheck, ownerCheck, orderCheck);
+
         this.status = OrderStatus.DELIVERY;
+    }
+
+    /**
+     * 주문서 정보 변경 가능 여부 체크
+     *
+     * 1. 자신의 주문은 수정 가능
+     * 2. 주문서에 등록된 매장 ID의 점주인 경우 가능
+     * 3. 관리자(MASTER, MANAGER)인 경우 가능
+     */
+    private void checkAuthority(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
+
+        // 관리자 & 매장 점주 & 자신의 주문인 경우 true
+        if (roleCheck.hasRole(List.of("MASTER", "MANAGER")) || ownerCheck.isOwner(storeInfo.getStoreId()) || orderCheck.isMyOrder(id)) {
+            return;
+        }
+
+        throw new UnAuthorizedException();
     }
 }

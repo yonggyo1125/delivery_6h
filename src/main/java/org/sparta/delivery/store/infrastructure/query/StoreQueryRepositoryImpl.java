@@ -13,7 +13,7 @@ import org.sparta.delivery.store.domain.StoreId;
 import org.sparta.delivery.store.domain.StoreStatus;
 import org.sparta.delivery.store.domain.query.StoreQueryRepository;
 import org.sparta.delivery.store.domain.query.dto.StoreQueryDto;
-import org.sparta.delivery.store.domain.service.OwnerCheck;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;

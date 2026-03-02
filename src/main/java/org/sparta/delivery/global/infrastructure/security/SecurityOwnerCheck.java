@@ -1,10 +1,9 @@
-package org.sparta.delivery.store.infrastructure;
+package org.sparta.delivery.global.infrastructure.security;
 
 import lombok.RequiredArgsConstructor;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.sparta.delivery.store.domain.QStore;
-import org.sparta.delivery.store.domain.StoreId;
 import org.sparta.delivery.store.domain.StoreRepository;
-import org.sparta.delivery.store.domain.service.OwnerCheck;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -17,7 +16,7 @@ import java.util.UUID;
 public class SecurityOwnerCheck implements OwnerCheck {
     private final StoreRepository repository;
     @Override
-    public boolean isOwner(StoreId storeId) {
+    public boolean isOwner(UUID storeId) {
         if (storeId == null) return false;
 
         UUID ownerId = getOwnerId();
@@ -25,7 +24,7 @@ public class SecurityOwnerCheck implements OwnerCheck {
 
         QStore store = QStore.store;
 
-        return repository.exists(store.id.eq(storeId).and(store.owner.id.eq(ownerId)));
+        return repository.exists(store.id.id.eq(storeId).and(store.owner.id.eq(ownerId)));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.sparta.delivery.order.domain.service;
 
+import org.sparta.delivery.order.domain.OrderId;
 import org.sparta.delivery.order.domain.OrderItem;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public interface OrderCheck {
      * @return
      */
     boolean isOrderable(UUID storeId, List<OrderItem> items); // 주문 가능 여부 체크
+    boolean isMyOrder(OrderId orderId); // 주문이 로그인한 회원의 주문인지 체크
 }

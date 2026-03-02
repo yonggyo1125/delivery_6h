@@ -13,7 +13,7 @@ import org.sparta.delivery.store.domain.exception.ProductDuplicatedException;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.exception.StoreStatusException;
 import org.sparta.delivery.store.domain.service.CategoryCheck;
-import org.sparta.delivery.store.domain.service.OwnerCheck;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -438,7 +438,7 @@ public class Store extends BaseUserEntity {
             if (!roleCheck.hasRole("OWNER")) {
                 throw new UnAuthorizedException();
             }
-        } else if (!ownerCheck.isOwner(id)) { // 상점 정보 수정인 경우 매장 소유주 확인
+        } else if (!ownerCheck.isOwner(id.getId())) { // 상점 정보 수정인 경우 매장 소유주 확인
             throw new UnAuthorizedException();
         }
     }
