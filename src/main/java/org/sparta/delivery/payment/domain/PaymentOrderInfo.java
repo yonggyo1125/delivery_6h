@@ -11,11 +11,12 @@ import java.util.UUID;
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentOrderInfo {
-    @Column(length=45, nullable=false)
+
+    @Column(length = 45, nullable = false, updatable = false)
     private UUID orderId;
 
-    @Column(length=100, nullable = false)
-    private String orderName; // 주문상품명
+    @Column(length = 100, nullable = false, updatable = false)
+    private String orderName;
 
     @Builder
     protected PaymentOrderInfo(UUID orderId, String orderName) {
