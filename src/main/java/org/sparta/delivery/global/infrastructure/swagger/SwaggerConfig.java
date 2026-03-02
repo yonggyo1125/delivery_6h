@@ -23,6 +23,15 @@ public class SwaggerConfig {
     }
 
     @Bean
+    public GroupedOpenApi categoryApi() {
+        return GroupedOpenApi.builder()
+                .group("카테고리 관리")
+                .displayName("카테고리 API")
+                .pathsToMatch("/v1/categories/**")
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi storeApi() {
         return GroupedOpenApi.builder()
                 .group("매장 및 상품 관리")
@@ -38,6 +47,24 @@ public class SwaggerConfig {
                 .group("주문 관리")
                 .displayName("주문 API")
                 .pathsToMatch("/v1/orders/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi paymentApi() {
+        return GroupedOpenApi.builder()
+                .group("결제 관리")
+                .displayName("결제 API")
+                .pathsToMatch("/v1/payments/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi reviewApi() {
+        return GroupedOpenApi.builder()
+                .group("리뷰 관리")
+                .displayName("리뷰 API")
+                .pathsToMatch("/v1/reviews/**")
                 .build();
     }
 

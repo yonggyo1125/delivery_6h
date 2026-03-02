@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-@Tag(name = "Order Query API", description = "주문 조회 관련 API")
+@Tag(name = "주문 API", description = "주문 조회 관련 API")
 @RestController
 @RequestMapping("/v1/orders")
 @RequiredArgsConstructor

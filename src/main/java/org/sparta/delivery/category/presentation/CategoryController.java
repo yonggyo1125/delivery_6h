@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Category API", description = "카테고리 관리 및 조회 API")
+@Tag(name = "카테고리 API", description = "카테고리 관리 및 조회 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/categories")
