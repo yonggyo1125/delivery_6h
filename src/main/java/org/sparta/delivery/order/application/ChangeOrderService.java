@@ -56,4 +56,13 @@ public class ChangeOrderService {
         // 엔티티 내부에서 입금 확인 여부 및 권한을 체크한 뒤 상태를 변경합니다.
         order.delivery(roleCheck, ownerCheck, orderCheck);
     }
+
+    // 최종 주문 완료 처리
+    @Transactional
+    public void completeOrder(UUID orderId) {
+        Order order = orderRepository.findById(OrderId.of(orderId))
+                .orElseThrow(OrderNotFoundException::new);
+
+        order.done(roleCheck, ownerCheck);
+    }
 }

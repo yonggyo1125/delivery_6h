@@ -217,7 +217,7 @@ public class Order extends BaseUserEntity {
         }
         if (orderCheck != null && !orderCheck.isMyOrder(id)) return;
 
-        throw new UnAuthorizedException();
+        throw new UnAuthorizedException("주문 처리 권한이 없습니다.");
     }
 
     // 로그인 여부 체크
