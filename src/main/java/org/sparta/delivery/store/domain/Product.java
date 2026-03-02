@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
+import org.sparta.delivery.store.domain.exception.ProductOptionDuplicatedException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -91,6 +92,12 @@ public class Product extends BaseUserEntity {
     public void createOptions(List<ProductOption> newOptions) {
         if (newOptions == null || newOptions.isEmpty()) return;
         this.options = Objects.requireNonNullElseGet(this.options, ArrayList::new);
+
+        // 옵션명 중복 체크
+        for (ProductOption newOpt : newOptions) {
+            validateDuplicateOptionName(newOpt.getName());
+        }
+
         this.options.addAll(newOptions);
     }
 
@@ -101,7 +108,22 @@ public class Product extends BaseUserEntity {
 
     public void createOption(String name, int price, List<ProductSubOption> subOptions) {
         options = Objects.requireNonNullElseGet(options, ArrayList::new);
+
+        // 옵션명 중복 체크
+        validateDuplicateOptionName(name);
+
         options.add(new ProductOption(name, price, subOptions));
+    }
+
+    // 옵션명 중복 검증 로직 (Soft Delete된 옵션은 제외하고 체크)
+    private void validateDuplicateOptionName(String name) {
+        boolean isDuplicate = options.stream()
+                .filter(o -> o.getDeletedAt() == null)
+                .anyMatch(o -> o.getName().equals(name));
+
+        if (isDuplicate) {
+            throw new ProductOptionDuplicatedException(name);
+        }
     }
 
     // 옵션 여러개 삭제(Soft Delete)
