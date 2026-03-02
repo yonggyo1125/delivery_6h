@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.sparta.delivery.global.domain.Price;
 import org.sparta.delivery.order.domain.exception.InvalidOrderItemException;
+import org.sparta.delivery.order.domain.service.OptionCheck;
 import org.sparta.delivery.order.domain.service.ProductProvider;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class OrderItem {
     private Price totalPrice; // (상품가 + 옵션가) * 수량
 
     @Builder
-    public OrderItem(UUID storeId, String itemCode, ProductProvider productProvider, int quantity, List<SelectedOption> selectedOptions) {
+    public OrderItem(UUID storeId, String itemCode, ProductProvider productProvider, int quantity, List<SelectedOption> selectedOptions, OptionCheck optionCheck) {
 
         this.item = productProvider.getProduct(storeId, itemCode);
         if (!item.isOrderable()) { // 주문이 불가한 상품인 경우
@@ -36,7 +37,7 @@ public class OrderItem {
 
         this.quantity = quantity;
 
-        this.selectedOptions = selectedOptions;
+        setSelectedOptions(storeId, itemCode, selectedOptions, optionCheck);
 
         // 상품별 합계 금액 계산
         calculateTotalPrice();
@@ -49,5 +50,15 @@ public class OrderItem {
                 .sum();
 
         this.totalPrice = new Price((item.getPrice().getValue() + optionsSum) * quantity);
+    }
+
+
+    private void setSelectedOptions(UUID storeId, String itemCode, List<SelectedOption> selectedOptions, OptionCheck optionCheck) {
+        // 실제 등록된 옵션인지 체크
+        if (optionCheck.validate(storeId, itemCode, selectedOptions)) {
+            throw new InvalidOrderItemException("주문이 불가한 옵션이 포함되어 있습니다.");
+        }
+
+        this.selectedOptions = selectedOptions;
     }
 }
