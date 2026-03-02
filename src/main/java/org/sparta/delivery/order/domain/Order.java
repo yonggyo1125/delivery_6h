@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static org.sparta.delivery.order.domain.OrderStatus.*;
+
 /**
  * 0. 주문은 반드시 회원의 권한을 가진 사용자만 가능
  * 1. 주문 상품이 1개 이상이어야 주문이 가능
@@ -86,7 +88,7 @@ public class Order extends BaseUserEntity {
         );
         this.storeInfo = new StoreInfo(storeId, storeName, storeAddress, storeTel); // 매장 정보
         this.deliveryInfo = new DeliveryInfo(deliveryAddress, deliveryAddressDetail, deliveryMemo); // 배송 정보
-        this.status = OrderStatus.ORDER_CREATING; // 주문 생성 중
+        this.status = ORDER_CREATING; // 주문 생성 중
         setOrderItems(orderItems, orderCheck);
         calculateTotalOrderPrice();
     }
@@ -112,7 +114,7 @@ public class Order extends BaseUserEntity {
         // 권한 체크
         checkAuthority(roleCheck, ownerCheck, orderCheck);
 
-        this.status = OrderStatus.ORDER_ACCEPT;
+        this.status = ORDER_ACCEPT;
 
         // 주문 접수 후 이벤트 발생 시키기 - 메일 전송
         Events.trigger(new OrderAcceptEvent(id.getId()));
@@ -124,7 +126,7 @@ public class Order extends BaseUserEntity {
         checkAuthority(roleCheck, ownerCheck, orderCheck);
 
         //  주문 접수 상태(입금 전) + 5분 이내 취소 시 -> 단순 주문 취소
-        if (status == OrderStatus.ORDER_ACCEPT) {
+        if (status == ORDER_ACCEPT) {
             if (createdAt == null || LocalDateTime.now().isBefore(createdAt.plusMinutes(5L))) {
                 this.status = OrderStatus.ORDER_CANCEL;
             } else {
@@ -132,7 +134,7 @@ public class Order extends BaseUserEntity {
             }
         }
         // 입금 확인 상태(PAYMENT_CONFIRM)에서 취소 시 -> 환불 처리 및 이벤트 발생
-        else if (status == OrderStatus.PAYMENT_CONFIRM) {
+        else if (status == PAYMENT_CONFIRM) {
             this.status = OrderStatus.ORDER_REFUND;
 
             // 결제 취소 요청 이벤트 트리거
@@ -146,7 +148,7 @@ public class Order extends BaseUserEntity {
      * 매장별 배송 불가 지역 체크 필요, 그러나 이 기능은 다른 도메인 기능이 필요하므로 도메인 서비스로 추가, 단순히 도메인 서비스에 주문 도메인의 delivery상태 변경 로직은 실행
      */
     public void delivery(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
-        if (this.status != OrderStatus.PAYMENT_CONFIRM) {
+        if (this.status != PAYMENT_CONFIRM) {
             return;
         }
 
@@ -156,7 +158,18 @@ public class Order extends BaseUserEntity {
         this.status = OrderStatus.DELIVERY;
     }
 
+    /**
+     * 주문서의 주소 변경
+     *
+     * 1. 주문자, 매장 점주, 관리자(MASTER, MANAGER) 변경 가능
+     * 2. 배송중 이전 단계에서만 가능
+     */
     public void changeDeliveryInfo(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
+        if (!List.of(ORDER_CREATING, ORDER_ACCEPT, PAYMENT_CONFIRM, PREPARING).contains(status)){
+            return;
+        }
+
+        checkAuthority(roleCheck, ownerCheck, orderCheck);
 
     }
 
