@@ -28,7 +28,6 @@ public class OrderServiceDto {
     @Builder
     public static class Item {
         private String itemCode;
-        private String itemName;
         private int price;
         private int quantity;
         private List<Option> options;

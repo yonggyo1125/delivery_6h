@@ -17,7 +17,7 @@ public class OrderRequestDto {
     @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
     @Schema(description = "주문 생성을 위한 요청 데이터")
     public static class Create {
-        @Schema(description = "주문자 실명 (미입력 시 회원 정보 사용)", example = "김용교")
+        @Schema(description = "주문자 실명 (미입력 시 회원 정보 사용)", example = "김르탄")
         private String ordererName;
 
         @Email(message = "올바른 이메일 형식이 아닙니다.")
@@ -73,14 +73,6 @@ public class OrderRequestDto {
         @Schema(description = "상품 식별 코드", example = "PROD-001")
         private String itemCode;
 
-        @NotBlank(message = "상품 명칭은 필수입니다.")
-        @Schema(description = "상품 이름", example = "황금올리브 치킨")
-        private String itemName;
-
-        @Min(value = 0, message = "상품 가격은 0원 이상이어야 합니다.")
-        @Schema(description = "상품 단가", example = "20000")
-        private int price;
-
         @Min(value = 1, message = "주문 수량은 최소 1개 이상이어야 합니다.")
         @Schema(description = "주문 수량", example = "1")
         private int quantity;
@@ -91,7 +83,7 @@ public class OrderRequestDto {
 
         public OrderServiceDto.Item toServiceDto() {
             return OrderServiceDto.Item.builder()
-                    .itemCode(itemCode).itemName(itemName).price(price).quantity(quantity)
+                    .itemCode(itemCode).quantity(quantity)
                     .options(options != null ? options.stream().map(Option::toServiceDto).toList() : List.of())
                     .build();
         }

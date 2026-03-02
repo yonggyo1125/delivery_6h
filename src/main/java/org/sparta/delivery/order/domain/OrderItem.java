@@ -3,8 +3,11 @@ package org.sparta.delivery.order.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.sparta.delivery.global.domain.Price;
+import org.sparta.delivery.order.domain.exception.InvalidOrderItemException;
+import org.sparta.delivery.order.domain.service.ProductProvider;
 
 import java.util.List;
+import java.util.UUID;
 
 @Embeddable
 @ToString @Getter
@@ -12,11 +15,6 @@ import java.util.List;
 public class OrderItem {
     @Embedded
     private ProductInfo item;
-
-    @AttributeOverrides(
-            @AttributeOverride(name="value", column = @Column(name="price"))
-    )
-    private Price price;
 
     private int quantity;
 
@@ -29,9 +27,13 @@ public class OrderItem {
     private Price totalPrice; // (상품가 + 옵션가) * 수량
 
     @Builder
-    public OrderItem(String itemCode, String itemName, int price, int quantity, List<SelectedOption> selectedOptions) {
-        item = new ProductInfo(itemCode, itemName);
-        this.price = new Price(price);
+    public OrderItem(UUID storeId, String itemCode, ProductProvider productProvider, int quantity, List<SelectedOption> selectedOptions) {
+
+        this.item = productProvider.getProduct(storeId, itemCode);
+        if (!item.isOrderable()) { // 주문이 불가한 상품인 경우
+            throw new InvalidOrderItemException();
+        }
+
         this.quantity = quantity;
 
         this.selectedOptions = selectedOptions;
@@ -46,6 +48,6 @@ public class OrderItem {
                         opt.getSubOptions().stream().mapToInt(SelectedOption.SelectedSubOption::getAddPrice).sum())
                 .sum();
 
-        this.totalPrice = new Price((this.price.getValue() + optionsSum) * quantity);
+        this.totalPrice = new Price((item.getPrice().getValue() + optionsSum) * quantity);
     }
 }

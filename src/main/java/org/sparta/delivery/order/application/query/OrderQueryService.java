@@ -66,7 +66,7 @@ public class OrderQueryService {
                         OrderResponseDto.OrderItem.builder()
                                 .itemName(item.getItem().getName())
                                 .quantity(item.getQuantity())
-                                .price(item.getPrice().getValue())
+                                .price(item.getItem().getPrice().getValue())
                                 .totalPrice(item.getTotalPrice().getValue())
                                 .selectedOptions(item.getSelectedOptions().stream().map(opt ->
                                         OrderResponseDto.Option.builder()

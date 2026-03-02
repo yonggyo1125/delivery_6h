@@ -10,6 +10,7 @@ import org.sparta.delivery.order.domain.OrderItem;
 import org.sparta.delivery.order.domain.OrderRepository;
 import org.sparta.delivery.order.domain.SelectedOption;
 import org.sparta.delivery.order.domain.service.OrderCheck;
+import org.sparta.delivery.order.domain.service.ProductProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +25,14 @@ public class CreateOrderService {
     private final UserDetails userDetails;
     private final RoleCheck roleCheck;
     private final OwnerCheck ownerCheck;
+    private final ProductProvider productProvider;
 
     @Transactional
     public UUID createOrder(OrderServiceDto.Create dto) {
 
         // OrderItem + SelectedOption로 변환
         List<OrderItem> orderItems = dto.getItems().stream()
-                .map(this::toOrderItem)
+                .map(item -> toOrderItem(dto.getStoreId(), item))
                 .toList();
 
         // Order 엔티티 생성
@@ -56,7 +58,7 @@ public class CreateOrderService {
         return orderRepository.save(order).getId().getId();
     }
 
-    private OrderItem toOrderItem(OrderServiceDto.Item itemDto) {
+    private OrderItem toOrderItem(UUID storeId, OrderServiceDto.Item itemDto) {
         List<SelectedOption> selectedOptions = itemDto.getOptions() == null ? List.of() :
                 itemDto.getOptions().stream()
                         .map(opt -> SelectedOption.builder()
@@ -72,9 +74,9 @@ public class CreateOrderService {
                         .toList();
 
         return OrderItem.builder()
+                .storeId(storeId)
+                .productProvider(productProvider)
                 .itemCode(itemDto.getItemCode())
-                .itemName(itemDto.getItemName())
-                .price(itemDto.getPrice())
                 .quantity(itemDto.getQuantity())
                 .selectedOptions(selectedOptions)
                 .build();
