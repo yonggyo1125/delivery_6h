@@ -164,13 +164,22 @@ public class Order extends BaseUserEntity {
      * 1. 주문자, 매장 점주, 관리자(MASTER, MANAGER) 변경 가능
      * 2. 배송중 이전 단계에서만 가능
      */
-    public void changeDeliveryInfo(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
-        if (!List.of(ORDER_CREATING, ORDER_ACCEPT, PAYMENT_CONFIRM, PREPARING).contains(status)){
-            return;
+    public void changeDeliveryInfo(String address, String addressDetail, String memo, RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
+
+        // 배송지 변경 가능 여부 체크
+        if (!canChangeDeliveryInfo()) {
+            throw new BadRequestException("배송이 시작된 이후에는 배송지를 변경할 수 없습니다.");
         }
 
+        // 권한 체크
         checkAuthority(roleCheck, ownerCheck, orderCheck);
 
+        deliveryInfo = new DeliveryInfo(address, addressDetail, memo);
+    }
+
+    private boolean canChangeDeliveryInfo() {
+        return List.of(ORDER_CREATING, ORDER_ACCEPT, PAYMENT_CONFIRM, PREPARING)
+                .contains(this.status);
     }
 
     /**
