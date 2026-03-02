@@ -3,11 +3,14 @@ package org.sparta.delivery.order.infrastructure;
 import lombok.RequiredArgsConstructor;
 import org.sparta.delivery.order.domain.OrderId;
 import org.sparta.delivery.order.domain.OrderItem;
+import org.sparta.delivery.order.domain.OrderRepository;
 import org.sparta.delivery.order.domain.service.OrderCheck;
 import org.sparta.delivery.store.domain.Product;
 import org.sparta.delivery.store.domain.Store;
 import org.sparta.delivery.store.domain.StoreId;
 import org.sparta.delivery.store.domain.StoreRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.UUID;
 public class OrderCheckImpl implements OrderCheck {
 
     private final StoreRepository storeRepository;
+    private final OrderRepository orderRepository;
 
     @Override
     public boolean isOrderable(UUID storeId, List<OrderItem> items) {
@@ -49,6 +53,7 @@ public class OrderCheckImpl implements OrderCheck {
 
     @Override
     public boolean isMyOrder(OrderId orderId) {
+
 
 
         return false;
