@@ -169,10 +169,10 @@ public class Order extends BaseUserEntity {
      */
     public void done(RoleCheck roleCheck, OwnerCheck ownerCheck) {
         if (status != DELIVERY_DONE) {
-            return;
+            throw new BadRequestException("배송 완료된 주문만 최종 완료 처리가 가능합니다. (현재 상태: " + status + ")");
         }
 
-        checkAuthority(roleCheck, ownerCheck, null);
+        checkManagerOrOwnerAuthority(roleCheck, ownerCheck);
 
         this.status = ORDER_DONE;
 
@@ -203,6 +203,21 @@ public class Order extends BaseUserEntity {
                 .contains(this.status);
     }
 
+    // 관리자 또는 점주 권한만 체크 (주문 완료용)
+    private void checkManagerOrOwnerAuthority(RoleCheck roleCheck, OwnerCheck ownerCheck) {
+        // 관리자 권한 확인
+        if (roleCheck.hasRole(List.of("MASTER", "MANAGER"))) {
+            return;
+        }
+
+        // 점주 권한 확인
+        if (ownerCheck.isOwner(storeInfo.getStoreId())) {
+            return;
+        }
+
+        throw new UnAuthorizedException("주문 완료 처리는 점주 또는 관리자만 가능합니다.");
+    }
+
     /**
      * 주문서 정보 변경 가능 여부 체크
      *
@@ -212,13 +227,22 @@ public class Order extends BaseUserEntity {
      */
     private void checkAuthority(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
 
-        // 관리자 & 매장 점주 & 자신의 주문인 경우 true
-        if (roleCheck.hasRole(List.of("MASTER", "MANAGER")) || ownerCheck.isOwner(storeInfo.getStoreId())) {
+        // 관리자 권한 확인
+        if (roleCheck.hasRole(List.of("MASTER", "MANAGER"))) {
             return;
         }
-        if (orderCheck != null && !orderCheck.isMyOrder(id)) return;
 
-        throw new UnAuthorizedException("주문 처리 권한이 없습니다.");
+        // 매장 점주 확인
+        if (ownerCheck.isOwner(storeInfo.getStoreId())) {
+            return;
+        }
+
+        // 본인 주문 확인
+        if (orderCheck != null && orderCheck.isMyOrder(id)) {
+            return;
+        }
+
+        throw new UnAuthorizedException("해당 주문에 대한 처리 권한이 없습니다.");
     }
 
     // 로그인 여부 체크
