@@ -2,12 +2,12 @@ package org.sparta.delivery.store.application;
 
 import lombok.RequiredArgsConstructor;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.store.application.dto.StoreServiceDto;
 import org.sparta.delivery.store.domain.Store;
 import org.sparta.delivery.store.domain.StoreRepository;
 import org.sparta.delivery.store.domain.service.CategoryCheck;
-import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -27,7 +27,6 @@ public class CreateStoreService {
     public UUID create(StoreServiceDto.CreateStore dto) {
         String ownerName = StringUtils.hasText(dto.getOwnerName()) ? dto.getOwnerName() : ownerCheck.getOwnerName();
         Store store = Store.builder()
-                .ownerId(ownerCheck.getOwnerId())
                 .ownerName(ownerName)
                 .name(dto.getName())
                 .description(dto.getDescription())

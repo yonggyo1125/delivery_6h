@@ -17,13 +17,17 @@ public class Orderer {
     @Column(length=45, name="orderer_name", nullable = false)
     private String name;
 
+    @Column(length=30, name="orderer_mobile", nullable = false)
+    private String mobile;
+
     @Column(length=65, name="orderer_email", nullable = false)
     private String email;
 
     @Builder
-    protected Orderer(UUID id, String name, String email) {
+    protected Orderer(UUID id, String name, String mobile, String email) {
         this.id = id;
         this.name = name;
+        this.mobile = mobile;
         this.email = email;
     }
 }

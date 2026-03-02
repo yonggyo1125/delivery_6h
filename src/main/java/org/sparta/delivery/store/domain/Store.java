@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
+import org.sparta.delivery.global.domain.exception.BadRequestException;
 import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
+import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.store.domain.dto.StoreDto;
 import org.sparta.delivery.store.domain.exception.InvalidCategoryException;
@@ -13,7 +15,6 @@ import org.sparta.delivery.store.domain.exception.ProductDuplicatedException;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.exception.StoreStatusException;
 import org.sparta.delivery.store.domain.service.CategoryCheck;
-import org.sparta.delivery.global.domain.service.OwnerCheck;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -36,7 +37,6 @@ import java.util.stream.IntStream;
 @ToString @Getter
 @Table(name="P_STORE", indexes = {
         @Index(name = "idx_store_location_point", columnList = "point"), // 공간 쿼리용 GiST 인덱스
-        @Index(name = "idx_store_owner", columnList = "owner_id"), // 사장님(Owner)별 가게 조회용 인덱스
         @Index(name = "idx_store_name", columnList = "store_name"), // 매장명 검색 성능 향상
         @Index(name = "idx_store_status_created", columnList = "status, created_at"), // 상태(Status) + 생성일(CreatedAt)
 })
@@ -94,13 +94,17 @@ public class Store extends BaseUserEntity {
     private List<Product> products;
 
     @Builder
-    public Store(UUID storeId, UUID ownerId, String ownerName, String name, String description, String businessNo, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck, CategoryCheck categoryCheck) {
+    public Store(UUID storeId, String ownerName, String name, String description, String businessNo, String landline, String email, String address, List<UUID> categoryIds, AddressToCoords addressToCoords, RoleCheck roleCheck, OwnerCheck ownerCheck, CategoryCheck categoryCheck) {
 
         // 등록 권한 체크
         checkAuthority(roleCheck, ownerCheck);
 
+        if (ownerCheck.getStoreId() != null) {
+            throw new BadRequestException("이미 등록된 매장이 있습니다.");
+        }
+
         this.id = storeId == null ? StoreId.of() : StoreId.of(storeId);
-        this.owner = new Owner(ownerId, ownerName);
+        this.owner = new Owner(ownerCheck.getOwnerId(), ownerName);
         this.name = name;
         this.description = description;
         this.businessNo = businessNo;

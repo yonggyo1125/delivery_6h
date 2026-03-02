@@ -77,7 +77,7 @@ public class Order extends BaseUserEntity {
     private OrderStatus status;
 
     @Builder
-    public Order(UUID orderId, String ordererName, String ordererEmail, UUID storeId, String storeName, String storeAddress, String storeTel, List<OrderItem> orderItems, String deliveryAddress, String deliveryAddressDetail, String deliveryMemo, OrderCheck orderCheck, UserDetails userDetails) {
+    public Order(UUID orderId, String ordererName, String ordererMobile, String ordererEmail, UUID storeId, String storeName, String storeAddress, String storeTel, List<OrderItem> orderItems, String deliveryAddress, String deliveryAddressDetail, String deliveryMemo, OrderCheck orderCheck, UserDetails userDetails) {
 
         // 로그인 여부 체크
         checkAuthenticated(userDetails);
@@ -86,6 +86,7 @@ public class Order extends BaseUserEntity {
         this.orderer = new Orderer(
                     userDetails.getId(),
                     StringUtils.hasText(ordererName) ? ordererName : userDetails.getName(),
+                    StringUtils.hasText(ordererMobile) ? ordererMobile : userDetails.getMobile(),
                     StringUtils.hasText(ordererEmail) ? ordererEmail : userDetails.getEmail()
         );
         this.storeInfo = new StoreInfo(storeId, storeName, storeAddress, storeTel); // 매장 정보

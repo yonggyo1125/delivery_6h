@@ -35,6 +35,9 @@ public class CreateOrderService {
 
         // Order 엔티티 생성
         Order order = Order.builder()
+                .ordererName(dto.getOrdererName())
+                .ordererEmail(dto.getOrdererEmail())
+                .ordererMobile(dto.getOrdererMobile())
                 .storeId(dto.getStoreId())
                 .storeName(dto.getStoreName())
                 .storeAddress(dto.getStoreAddress())

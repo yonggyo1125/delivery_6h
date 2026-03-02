@@ -2,8 +2,9 @@ package org.sparta.delivery.order.domain.query;
 
 import org.sparta.delivery.order.domain.Order;
 import org.sparta.delivery.order.domain.OrderId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.awt.print.Pageable;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,11 +17,11 @@ public interface OrderQueryRepository {
 
 
     // 매장별 주문목록 조회
-    Optional<Order> findAllByStore(UUID storeId, OrderQueryDto.Search search, Pageable pageable);
+    Page<Order> findAllByStore(UUID storeId, OrderQueryDto.Search search, Pageable pageable);
 
     // 사용자별 주문목록 조회
-    Optional<Order> findAllByUser(UUID userId, OrderQueryDto.Search search, Pageable pageable);
+    Page<Order> findAllByUser(UUID userId, OrderQueryDto.Search search, Pageable pageable);
 
     // 주문 목록 조회
-    Optional<Order> findAll(OrderQueryDto.Search search, Pageable pageable);
+    Page<Order> findAll(OrderQueryDto.Search search, Pageable pageable);
 }

@@ -15,7 +15,7 @@ public class OrderQueryDto {
     public static class Search {
         List<UUID> orderIds; // 주문번호는 단일 또는 복수개 검색 가능
         String ordererName; // 주문자명
-        String ordererTel; // 주문자 전화번호
+        String ordererMobile; // 주문자 전화번호
         String ordererEmail;  // 주문자 이메일
         List<UUID> storeIds; // 매장 ID 목록
         String storeName; // 매장명

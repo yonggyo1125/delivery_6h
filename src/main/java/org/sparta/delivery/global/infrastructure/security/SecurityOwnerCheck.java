@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.sparta.delivery.global.domain.service.UserDetails;
 import org.sparta.delivery.store.domain.QStore;
+import org.sparta.delivery.store.domain.Store;
 import org.sparta.delivery.store.domain.StoreRepository;
 import org.springframework.stereotype.Component;
 
@@ -39,5 +40,12 @@ public class SecurityOwnerCheck implements OwnerCheck {
     @Override
     public String getOwnerName() {
         return userDetails.getName();
+    }
+
+    @Override
+    public UUID getStoreId() {
+        QStore store = QStore.store;
+        Store item = repository.findOne(store.owner.id.eq(userDetails.getId())).orElse(null);
+        return item == null ? null : item.getId().getId();
     }
 }

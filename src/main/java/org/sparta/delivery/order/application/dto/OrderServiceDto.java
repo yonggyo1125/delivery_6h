@@ -11,6 +11,9 @@ public class OrderServiceDto {
     @Getter
     @Builder
     public static class Create {
+        private String ordererName;
+        private String ordererMobile;
+        private String ordererEmail;
         private UUID storeId;
         private String storeName;
         private String storeAddress;
