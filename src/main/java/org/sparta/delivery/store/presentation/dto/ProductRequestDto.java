@@ -20,8 +20,7 @@ public class ProductRequestDto {
     @Schema(description = "상품 등록 및 수정 요청")
     public static class Save {
         @Schema(description = "상품 관리 코드", example = "CHICKEN-001")
-        @NotBlank(message = "상품 코드는 필수입니다.")
-        private String productCode;
+        private String productCode; // 지정되지 않는다면 자동 생성
 
         @Schema(description = "카테고리 ID", example = "550e8400-e29b-41d4-a716-446655440000")
         @NotNull(message = "카테고리는 필수입니다.")
