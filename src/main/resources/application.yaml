@@ -1,5 +1,6 @@
 server:
   port: 3000
+  forward-headers-strategy: native # 프록시 서버 헤더를 신뢰하도록 설정
 
 spring:
   application:
