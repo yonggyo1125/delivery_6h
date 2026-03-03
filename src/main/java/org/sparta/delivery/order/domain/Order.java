@@ -124,15 +124,14 @@ public class Order extends BaseUserEntity {
         Events.trigger(new OrderAcceptedEvent(id.getId()));
     }
 
-    // 결제 완료
-    public void paymentConfirm(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
-        // 권한 체크
-        checkAuthority(roleCheck, ownerCheck, orderCheck);
+    // 결제 완료 - SYSTEM에서 자동 처리되므로 권한 체크는 하지 않음
+    public void paymentConfirm() {
         this.status = PAYMENT_CONFIRM;
 
         // 결제 확인 상태 변경 후 이벤트 발행 - 결제 완료 메일 전송
         Events.trigger(new OrderPaymentConfirmedEvent(id.getId()));
     }
+
 
     // 주문 취소
     public void cancel(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
@@ -151,9 +150,16 @@ public class Order extends BaseUserEntity {
         else if (status == PAYMENT_CONFIRM) {
             this.status = OrderStatus.ORDER_REFUND;
 
-            // 결제 취소 요청 이벤트 트리거
+            // 결제 취소 요청 이벤트 발행
             Events.trigger(new OrderRefundedEvent(id.getId()));
         }
+    }
+
+    // 환불 상태 변환 - SYSTEM에서 자동 처리되므로 권한체는 하지 않음
+    public void systemCancel() {
+        this.status = OrderStatus.ORDER_REFUND;
+        // 결제 취소 요청 이벤트 발행
+        Events.trigger(new OrderRefundedEvent(id.getId()));
     }
 
     /**
