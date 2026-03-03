@@ -6,6 +6,7 @@ import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
 import org.sparta.delivery.global.infrastructure.event.Events;
 import org.sparta.delivery.payment.domain.event.PaymentApprovedEvent;
+import org.sparta.delivery.payment.domain.event.PaymentCancelledEvent;
 import org.sparta.delivery.payment.domain.exception.InvalidPaymentException;
 import org.sparta.delivery.payment.domain.exception.PaymentAmountMismatchException;
 import org.sparta.delivery.payment.domain.service.CancelPayment;
@@ -96,14 +97,14 @@ public class Payment extends BaseUserEntity {
      */
     public void cancel(CancelPayment cancelPayment) {
         if (this.status != PaymentStatus.DONE) {
-            throw new InvalidPaymentException("결제 취소는 입금을 해야 가능합니다.");
+            throw new InvalidPaymentException("결제 취소는 결제 완료(DONE) 상태에서만 가능합니다.");
         }
         // id -> status 값 변경, 로그 기록
         cancelPayment.cancel(id, key);
 
 
         // 주문 취소후 후속 처리(주문서의 상태를 환불상태로 변경) - 이벤트 발행
-        Events.trigger(new PaymentApprovedEvent(paymentOrderInfo.getOrderId()));
+        Events.trigger(new PaymentCancelledEvent(paymentOrderInfo.getOrderId()));
 
     }
 
