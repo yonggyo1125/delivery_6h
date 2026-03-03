@@ -76,6 +76,9 @@ springdoc:
     doc-expansion: full
     groups-order: asc                # 그룹 정렬 순서
     display-request-duration: true   # 요청 소요 시간 표시
+  show-actuator: true
+  model-and-view-allowed: true
+  override-with-generic-response: true
 
 keycloak:
   server-url: https://keycloak.code-factory.co.kr
