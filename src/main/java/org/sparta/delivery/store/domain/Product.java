@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
 import org.sparta.delivery.store.domain.exception.ProductOptionDuplicatedException;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class Product extends BaseUserEntity {
     protected Product(StoreId storeId, int productIdx, UUID categoryId, String productCode, String name, int price, List<ProductOption> options) {
         this.id = new ProductId(storeId, productIdx);
         this.category = categoryId;
-        this.productCode = productCode;
+        this.productCode = StringUtils.hasText(productCode) ? productCode : UUID.randomUUID().toString();
         this.name = name;
         this.price = new Price(price);
         this.status = ProductStatus.READY;
