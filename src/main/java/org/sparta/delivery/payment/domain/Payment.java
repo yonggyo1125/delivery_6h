@@ -9,7 +9,9 @@ import org.sparta.delivery.payment.domain.event.PaymentApprovedEvent;
 import org.sparta.delivery.payment.domain.event.PaymentCancelledEvent;
 import org.sparta.delivery.payment.domain.exception.InvalidPaymentException;
 import org.sparta.delivery.payment.domain.exception.PaymentAmountMismatchException;
+import org.sparta.delivery.payment.domain.exception.PaymentCancelFailureException;
 import org.sparta.delivery.payment.domain.service.CancelPayment;
+import org.sparta.delivery.payment.domain.service.CancelResult;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -99,14 +101,20 @@ public class Payment extends BaseUserEntity {
         if (this.status != PaymentStatus.DONE) {
             throw new InvalidPaymentException("결제 취소는 결제 완료(DONE) 상태에서만 가능합니다.");
         }
-        // id -> status 값 변경, 로그 기록
-        cancelPayment.cancel(id, key);
+        // 외부 API 호출 및 결과 수신
+        CancelResult result = cancelPayment.cancel(id, key);
 
-        this.status = PaymentStatus.CANCELED; // 결제 취소 상태로 변경
+        // 결제 취소 실패시 사유와 함께 예외 발생시킴
+        if (!result.success()) {
+            throw new PaymentCancelFailureException(result.reason());
+        }
+
+        // 성공시에만 상태 변경 및 로그 업데이트, 후속처리
+        this.status = PaymentStatus.CANCELED;
+        this.paymentLog = result.paymentLog();
 
         // 주문 취소후 후속 처리(주문서의 상태를 환불상태로 변경) - 이벤트 발행
         Events.trigger(new PaymentCancelledEvent(paymentOrderInfo.getOrderId()));
-
     }
 
     // 결제 실패/취소 처리
