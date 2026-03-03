@@ -102,6 +102,7 @@ public class Payment extends BaseUserEntity {
         // id -> status 값 변경, 로그 기록
         cancelPayment.cancel(id, key);
 
+        this.status = PaymentStatus.CANCELED; // 결제 취소 상태로 변경
 
         // 주문 취소후 후속 처리(주문서의 상태를 환불상태로 변경) - 이벤트 발행
         Events.trigger(new PaymentCancelledEvent(paymentOrderInfo.getOrderId()));
