@@ -1,4 +1,4 @@
-# 🛵 Delivery Service: Core Architecture Insight
+# 🛵 Delivery Service: Core Architecture Insight // 수정
 
 이 프로젝트는 대규모 트래픽 환경에서도 데이터의 신뢰성을 잃지 않도록 설계된 **도메인 중심 배달 서비스**입니다. 기술적 화려함보다 비즈니스 무결성과 안정적인 확장성에 초점을 맞추었습니다.
 
