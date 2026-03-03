@@ -98,6 +98,11 @@ public class Payment extends BaseUserEntity {
      * 2. 취소가 완료되면 주문서도 환불 상태로 변경 - 이벤트 발행
      */
     public void cancel(CancelPayment cancelPayment) {
+        // 이미 취소된 상태라면 처리하지 않음
+        if (this.status == PaymentStatus.CANCELED) {
+            return;
+        }
+
         if (this.status != PaymentStatus.DONE) {
             throw new InvalidPaymentException("결제 취소는 결제 완료(DONE) 상태에서만 가능합니다.");
         }
