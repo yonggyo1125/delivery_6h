@@ -49,7 +49,7 @@ public class PaymentApprovedEventHandler {
     public void recover(Exception e, PaymentApprovedEvent event) {
         log.error("주문 상태 변경 최종 실패. 주문 취소를 진행합니다. 주문ID(orderId): {}", event.orderId());
         Order order = getOrder(event.orderId());
-        order.systemCancel();
+        order.failPaymentConfirm();
 
     }
 
