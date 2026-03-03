@@ -47,7 +47,8 @@ public class PaymentApprovedEventHandler {
     @Recover // 모든 재시도가 실패했을 때 호출되는 보상 트랜잭션
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recover(Exception e, PaymentApprovedEvent event) {
-        log.error("주문 상태 변경 최종 실패. 주문 취소를 진행합니다. 주문ID(orderId): {}", event.orderId());
+        log.error("주문 상태 변경 최종 실패. 사유: {}. 자동 환불을 진행합니다. 주문ID: {}",
+                e.getMessage(), event.orderId());
         Order order = getOrder(event.orderId());
         order.failPaymentConfirm();
 
