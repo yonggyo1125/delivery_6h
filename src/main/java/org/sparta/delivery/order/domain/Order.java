@@ -12,6 +12,7 @@ import org.sparta.delivery.global.domain.service.UserDetails;
 import org.sparta.delivery.global.infrastructure.event.Events;
 import org.sparta.delivery.order.domain.event.OrderAcceptedEvent;
 import org.sparta.delivery.order.domain.event.OrderDoneEvent;
+import org.sparta.delivery.order.domain.event.OrderPaymentConfirmedEvent;
 import org.sparta.delivery.order.domain.event.OrderRefundedEvent;
 import org.sparta.delivery.order.domain.exception.InvalidOrderItemException;
 import org.sparta.delivery.order.domain.exception.OrderItemNotExistException;
@@ -119,8 +120,18 @@ public class Order extends BaseUserEntity {
 
         this.status = ORDER_ACCEPT;
 
-        // 주문 접수 후 이벤트 발생 시키기 - 결제 등록, 메일 전송
+        // 주문 접수 후 이벤트 발행 - 결제 등록, 메일 전송
         Events.trigger(new OrderAcceptedEvent(id.getId()));
+    }
+
+    // 결제 완료
+    public void paymentConfirm(RoleCheck roleCheck, OwnerCheck ownerCheck, OrderCheck orderCheck) {
+        // 권한 체크
+        checkAuthority(roleCheck, ownerCheck, orderCheck);
+        this.status = PAYMENT_CONFIRM;
+
+        // 결제 확인 상태 변경 후 이벤트 발행 - 결제 완료 메일 전송
+        Events.trigger(new OrderPaymentConfirmedEvent(id.getId()));
     }
 
     // 주문 취소

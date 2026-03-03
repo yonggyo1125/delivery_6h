@@ -64,9 +64,15 @@ dependencies {
     // JTS (Java Topology Suite) - 공간 연산 라이브러리
     implementation 'org.locationtech.jts:jts-core:1.19.0'
 
+
     // MapStruct
     implementation 'org.mapstruct:mapstruct:1.5.3.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+
+    // Spring Retry
+    implementation 'org.springframework.retry:spring-retry'
+    // Spring AOP (Retry가 프록시 기반으로 동작하기 위해 필수)
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
