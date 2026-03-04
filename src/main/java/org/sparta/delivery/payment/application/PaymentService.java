@@ -22,4 +22,9 @@ public class PaymentService {
         Payment payment = new Payment(orderId, orderProvider);
         return paymentRepository.save(payment).getId().getId();
     }
+
+    // 결제 승인 처리
+    public void approve(UUID paymentId) {
+
+    }
 }

@@ -9,9 +9,7 @@ import org.sparta.delivery.payment.domain.event.PaymentCancelledEvent;
 import org.sparta.delivery.payment.domain.exception.InvalidPaymentException;
 import org.sparta.delivery.payment.domain.exception.PaymentAmountMismatchException;
 import org.sparta.delivery.payment.domain.exception.PaymentCancelFailureException;
-import org.sparta.delivery.payment.domain.service.CancelPayment;
-import org.sparta.delivery.payment.domain.service.CancelResult;
-import org.sparta.delivery.payment.domain.service.OrderProvider;
+import org.sparta.delivery.payment.domain.service.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -71,7 +69,7 @@ public class Payment extends BaseUserEntity {
     }
 
     // 결제 승인 완료 처리
-    public void approve(String key, PaymentStatus status, LocalDateTime approvedAt, String paymentLog, int approvedAmount) {
+    public void approve(ApprovePayment approvePayment) {
         // 이미 승인된 경우라면 처리하지 않음
         if (this.status == PaymentStatus.DONE) {
             return;
@@ -82,19 +80,25 @@ public class Payment extends BaseUserEntity {
             throw new InvalidPaymentException("결제 승인이 가능한 상태가 아닙니다.");
         }
 
-        if (key == null || key.isBlank()) {
+        // 결제 승인 처리
+        ApproveResult approveResult = approvePayment.request(id);
+
+        this.key = approveResult.key();
+
+        if (this.key == null || this.key.isBlank()) {
             throw new InvalidPaymentException("결제 키(paymentKey)는 필수입니다.");
         }
 
         // 실결제 금액과 최초 등록 금액과 일치하는지 검증(위변조 방지), 검증 실패시 결제된 금액 취소
         int amount = this.paymentOrderInfo.getAmount().getValue();
+        int approvedAmount = approveResult.approvedAmount();
         if (amount != approvedAmount) {
             throw new PaymentAmountMismatchException(amount, approvedAmount);
         }
 
-        this.key = key;
-        this.paymentLog = paymentLog;
-        this.status = status;
+        LocalDateTime approvedAt = approveResult.approvedAt();
+        this.paymentLog = approveResult.paymentLog();
+        this.status = approveResult.status();
         this.approvedAt = approvedAt != null ? approvedAt : LocalDateTime.now();
 
         // 결제가 승인되면 주문상태를 변경하기 위한 후속 처리
