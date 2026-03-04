@@ -48,7 +48,7 @@ public class TossCancelPayment implements CancelPayment {
             String code = result == null || result.get("code") == null ? "UNKNOWN":result.get("code").asText();
             String message = result == null || result.get("message") == null ? "UNKNOWN":result.get("message").asText();
 
-            log.info("토스 결제 취소 실패, HTTP 상태코드: {}, 결제 ID: {}, 멱등성 키: {}, Payment Key: {}, 에러코드: {}, 에러메세지: {}", e.getStatusCode().value(), paymentId.getId(), idempotencyKey, paymentKey, code, message);
+            log.error("토스 결제 취소 실패, HTTP 상태코드: {}, 결제 ID: {}, 멱등성 키: {}, Payment Key: {}, 에러코드: {}, 에러메세지: {}", e.getStatusCode().value(), paymentId.getId(), idempotencyKey, paymentKey, code, message, e);
 
             return CancelResult.builder()
                     .success(false)
@@ -57,7 +57,7 @@ public class TossCancelPayment implements CancelPayment {
                     .build();
         } catch (Exception e) {
             // 네트워크 타임아웃 또는 기타 예외
-            log.info("토스 결제 취소 실패,  결제 ID: {}, 멱등성 키: {}, Payment Key: {}, 에러코드: UNKNOWN, 에러메세지: {}", paymentId.getId(), idempotencyKey, paymentKey, e.getMessage());
+            log.error("토스 결제 취소 실패,  결제 ID: {}, 멱등성 키: {}, Payment Key: {}, 에러코드: UNKNOWN, 에러메세지: {}", paymentId.getId(), idempotencyKey, paymentKey, e.getMessage(), e);
             return CancelResult.builder()
                     .success(false)
                     .reason("[UNKNOWN]" + e.getMessage())
