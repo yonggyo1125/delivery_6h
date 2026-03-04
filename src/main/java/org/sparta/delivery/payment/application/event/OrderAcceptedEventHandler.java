@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sparta.delivery.global.infrastructure.event.Events;
 import org.sparta.delivery.order.domain.event.OrderAcceptedEvent;
+import org.sparta.delivery.order.domain.exception.OrderNotFoundException;
 import org.sparta.delivery.payment.application.PaymentService;
 import org.sparta.delivery.payment.domain.event.PaymentCreateFailedEvent;
 import org.springframework.retry.annotation.Backoff;
@@ -24,6 +25,7 @@ public class OrderAcceptedEventHandler {
     @Async
     @Retryable(
             retryFor = { Exception.class },
+            noRetryFor = { OrderNotFoundException.class }, // 주문이 없다면 재시도는 무의미
             maxAttempts = 5,
             backoff = @Backoff(delay = 5000, multiplier = 2.0)
     )

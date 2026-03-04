@@ -165,7 +165,15 @@ public class Order extends BaseUserEntity {
         }
     }
 
+    // 시스템 자동 취소
+    public void systemCancel() {
+        if (status != ORDER_ACCEPT) {
+            return;
+        }
 
+        status = ORDER_CANCEL;
+
+    }
 
     /**
      * 배송 시작

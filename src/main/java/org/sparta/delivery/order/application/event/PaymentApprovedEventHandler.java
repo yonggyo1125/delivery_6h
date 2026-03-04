@@ -34,6 +34,7 @@ public class PaymentApprovedEventHandler {
     @Async
     @Retryable(
             retryFor = { Exception.class },
+            noRetryFor = { OrderNotFoundException.class }, // 주문서가 없다면 재시도는 무의미
             maxAttempts = 5,
             backoff = @Backoff(delay = 5000, multiplier = 2.0)
     )
