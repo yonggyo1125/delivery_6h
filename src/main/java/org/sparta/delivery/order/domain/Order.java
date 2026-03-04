@@ -136,7 +136,7 @@ public class Order extends BaseUserEntity {
         Events.trigger(new OrderPaymentConfirmedEvent(id.getId()));
     }
 
-    // 환불 상태 변환 - SYSTEM에서 자동 처리되므로 권한체는 하지 않음
+    // 환불 상태 변환 - SYSTEM에서 자동 처리되므로 권한체크는 하지 않음
     public void failPaymentConfirm() {
         this.status = OrderStatus.ORDER_REFUND;
         // 결제 취소 요청 이벤트 발행
