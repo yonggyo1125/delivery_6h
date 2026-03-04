@@ -3,7 +3,6 @@ package org.sparta.delivery.payment.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.sparta.delivery.global.domain.BaseUserEntity;
-import org.sparta.delivery.global.domain.Price;
 import org.sparta.delivery.global.infrastructure.event.Events;
 import org.sparta.delivery.payment.domain.event.PaymentApprovedEvent;
 import org.sparta.delivery.payment.domain.event.PaymentCancelledEvent;
@@ -12,6 +11,7 @@ import org.sparta.delivery.payment.domain.exception.PaymentAmountMismatchExcepti
 import org.sparta.delivery.payment.domain.exception.PaymentCancelFailureException;
 import org.sparta.delivery.payment.domain.service.CancelPayment;
 import org.sparta.delivery.payment.domain.service.CancelResult;
+import org.sparta.delivery.payment.domain.service.OrderProvider;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -48,23 +48,26 @@ public class Payment extends BaseUserEntity {
     private LocalDateTime approvedAt; // 결제 승인일시
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "amount.value", column = @Column(name = "payment_amount"))
+    })
     private PaymentOrderInfo paymentOrderInfo; // 결제 상품 정보
 
     @Column(name="payment_log", columnDefinition = "jsonb")
     private String paymentLog; // 결제로그
 
-    @AttributeOverrides(
-            @AttributeOverride(name="value", column = @Column(name="payment_amount"))
-    )
-    private Price amount; // 결제 금액
-
     @Builder
-    public Payment(UUID orderId, String orderName, int amount) {
+    public Payment(UUID orderId, OrderProvider orderProvider) {
+        PaymentOrderInfo orderInfo = orderProvider.getOrderInfo(orderId);
+
+        if (orderInfo == null) {
+            throw new InvalidPaymentException("존재하지 않는 주문 정보입니다.");
+        }
+
         this.id = PaymentId.of();
         this.status = PaymentStatus.READY; // 결제 생성 초기 상태
-        this.paymentOrderInfo = new PaymentOrderInfo(orderId, orderName);
+        this.paymentOrderInfo = orderInfo;
         this.requestedAt = LocalDateTime.now();
-        this.amount = new Price(amount);
     }
 
     // 결제 승인 완료 처리
@@ -84,8 +87,9 @@ public class Payment extends BaseUserEntity {
         }
 
         // 실결제 금액과 최초 등록 금액과 일치하는지 검증(위변조 방지), 검증 실패시 결제된 금액 취소
-        if (this.amount.getValue() != approvedAmount) {
-            throw new PaymentAmountMismatchException(amount.getValue(), approvedAmount);
+        int amount = this.paymentOrderInfo.getAmount().getValue();
+        if (amount != approvedAmount) {
+            throw new PaymentAmountMismatchException(amount, approvedAmount);
         }
 
         this.key = key;

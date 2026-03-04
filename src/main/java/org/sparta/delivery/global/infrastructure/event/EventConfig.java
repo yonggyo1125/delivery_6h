@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -13,9 +14,9 @@ import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecu
 
 import java.util.concurrent.Executor;
 
-@EnableAsync
-@EnableRetry
 @Configuration
+@EnableAsync
+@EnableRetry(order = Ordered.LOWEST_PRECEDENCE)
 public class EventConfig implements AsyncConfigurer {
 
     @Autowired

@@ -34,7 +34,7 @@ public class PaymentApprovedEventHandler {
     @Async
     @Retryable(
             retryFor = { Exception.class },
-            maxAttempts = 3,
+            maxAttempts = 5,
             backoff = @Backoff(delay = 5000, multiplier = 2.0)
     )
     @Transactional(propagation = Propagation.REQUIRES_NEW)

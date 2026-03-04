@@ -3,6 +3,7 @@ package org.sparta.delivery.payment.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
+import org.sparta.delivery.global.domain.Price;
 
 import java.util.UUID;
 
@@ -18,9 +19,12 @@ public class PaymentOrderInfo {
     @Column(length = 100, nullable = false, updatable = false)
     private String orderName;
 
+    private Price amount; // 결제 금액
+
     @Builder
-    protected PaymentOrderInfo(UUID orderId, String orderName) {
+    protected PaymentOrderInfo(UUID orderId, String orderName, int amount) {
         this.orderId = orderId;
         this.orderName = orderName;
+        this.amount = new Price(amount);
     }
 }
