@@ -68,8 +68,14 @@ public class Payment extends BaseUserEntity {
         this.requestedAt = LocalDateTime.now();
     }
 
-    // 결제 승인 완료 처리
-    public void approve(ApprovePayment approvePayment) {
+
+
+    /**
+     *  결제 승인 완료 처리
+     * @param key : 결제 요청 성공 콜백으로 넘어온 paymentKey
+     * @param approvePayment : 도메인 서비스, PG사에 결제 승인 처리
+     */
+    public void approve(String key, ApprovePayment approvePayment) {
         // 이미 승인된 경우라면 처리하지 않음
         if (this.status == PaymentStatus.DONE) {
             return;
@@ -80,13 +86,16 @@ public class Payment extends BaseUserEntity {
             throw new InvalidPaymentException("결제 승인이 가능한 상태가 아닙니다.");
         }
 
-        // 결제 승인 처리
-        ApproveResult approveResult = approvePayment.request(id);
-
-        this.key = approveResult.key();
+        this.key = key;
 
         if (this.key == null || this.key.isBlank()) {
             throw new InvalidPaymentException("결제 키(paymentKey)는 필수입니다.");
+        }
+
+        // 결제 승인 처리
+        ApproveResult approveResult = approvePayment.request(id);
+        if (!approveResult.success()) {
+            // 결제 실패시 처리
         }
 
         // 실결제 금액과 최초 등록 금액과 일치하는지 검증(위변조 방지), 검증 실패시 결제된 금액 취소
@@ -129,7 +138,7 @@ public class Payment extends BaseUserEntity {
 
         // 성공시에만 상태 변경 및 로그 업데이트, 후속처리
         this.status = PaymentStatus.CANCELED;
-        this.paymentLog = result.paymentLog();
+        this.paymentLog = "%s\n------------------------------------------------------\n%s".formatted(this.paymentLog, result.paymentLog());
 
         // 주문 취소후 후속 처리(주문서의 상태를 환불상태로 변경) - 이벤트 발행
         Events.trigger(new PaymentCancelledEvent(paymentOrderInfo.getOrderId()));
