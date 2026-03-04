@@ -11,6 +11,7 @@ import org.sparta.delivery.payment.domain.exception.PaymentAmountMismatchExcepti
 import org.sparta.delivery.payment.domain.exception.PaymentApproveFailureException;
 import org.sparta.delivery.payment.domain.exception.PaymentCancelFailureException;
 import org.sparta.delivery.payment.domain.service.*;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ public class Payment extends BaseUserEntity {
             throw new InvalidPaymentException("결제 승인이 가능한 상태가 아닙니다.");
         }
 
-        if (this.key == null || this.key.isBlank()) {
+        if (!StringUtils.hasText(key)) {
             throw new InvalidPaymentException("결제 키(paymentKey)는 필수입니다.");
         }
 
@@ -110,7 +111,7 @@ public class Payment extends BaseUserEntity {
         if (amount != approvedAmount) {
 
             // 환불 처리
-            cancelPayment.cancel(id, key);
+            cancelPayment.cancel(id, key, "실결제 금액과 최초 등록 금액과 불일치");
             this.status = PaymentStatus.ABORTED;
             throw new PaymentAmountMismatchException(amount, approvedAmount);
         }
@@ -127,7 +128,7 @@ public class Payment extends BaseUserEntity {
      * 1. 입금 확인 단계(PaymentStatus.DONE) 에서만 가능
      * 2. 취소가 완료되면 주문서도 환불 상태로 변경 - 이벤트 발행
      */
-    public void cancel(CancelPayment cancelPayment) {
+    public void cancel(String cancelReason, CancelPayment cancelPayment) {
         // 이미 취소된 상태라면 처리하지 않음
         if (this.status == PaymentStatus.CANCELED) {
             return;
@@ -136,8 +137,17 @@ public class Payment extends BaseUserEntity {
         if (this.status != PaymentStatus.DONE) {
             throw new InvalidPaymentException("결제 취소는 결제 완료(DONE) 상태에서만 가능합니다.");
         }
+
+        if (!StringUtils.hasText(this.key)) {
+            throw new InvalidPaymentException("결제 키(paymentKey)는 필수입니다.");
+        }
+
+        if (!StringUtils.hasText(cancelReason)) {
+            throw new InvalidPaymentException("취소 사유는 필수입니다.");
+        }
+
         // 외부 API 호출 및 결과 수신
-        CancelResult result = cancelPayment.cancel(id, key);
+        CancelResult result = cancelPayment.cancel(id, key, cancelReason);
 
         // 결제 취소 실패시 사유와 함께 예외 발생시킴
         if (!result.success()) {

@@ -38,9 +38,9 @@ public class PaymentService {
 
     // 결제 취소 처리
     @Transactional
-    public void cancel(UUID paymentId) {
+    public void cancel(UUID paymentId, String cancelReason) {
         Payment payment = getPayment(paymentId);
-        payment.cancel(cancelPayment);
+        payment.cancel(cancelReason, cancelPayment);
 
     }
 

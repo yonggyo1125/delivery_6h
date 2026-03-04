@@ -10,7 +10,6 @@ import org.sparta.delivery.payment.domain.PaymentStatus;
 import org.sparta.delivery.payment.domain.exception.PaymentNotFoundException;
 import org.sparta.delivery.payment.domain.service.ApprovePayment;
 import org.sparta.delivery.payment.domain.service.ApproveResult;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -52,7 +51,7 @@ public class TossApprovePayment implements ApprovePayment {
         log.info("토스 결제 승인 요청 시작, 주문 ID: {}, 결제 ID: {}, 멱등성 키: {}, Payment Key: {}, 결제금액: {}", orderId, paymentId.getId(), idempotencyKey, paymentKey, amount);
 
         try {
-            ResponseEntity<JsonNode> res = restClient.post()
+            JsonNode result = restClient.post()
                     .uri(uriBuilder -> uriBuilder
                             .path("confirm")
                             .build())
@@ -65,9 +64,8 @@ public class TossApprovePayment implements ApprovePayment {
                     )
                     .header("Idempotency-Key", idempotencyKey)
                     .retrieve()
-                    .toEntity(JsonNode.class);
+                    .body(JsonNode.class);
 
-            JsonNode result = res.getBody(); // 토스가 응답한 데이터
             JsonNode statusNode = result.get("status");
             PaymentStatus status = PaymentStatus.valueOf(statusNode.asText());
             LocalDateTime approvedAt = result.get("approvedAt") == null ? null : LocalDateTime.parse(result.get("approvedAt").asText(), DateTimeFormatter.ISO_DATE_TIME);
