@@ -20,7 +20,7 @@ public class TossApiHelper {
 
         restClient = RestClient.builder()
                 .baseUrl(URI.create("https://api.tosspayments.com/v1/payments"))
-                .defaultHeaders((headers) -> {
+                .defaultHeaders((headers) -> { // 요청헤더
                     headers.setBasicAuth(encodedSecretKey);
                     headers.setContentType(MediaType.APPLICATION_JSON);
                 })

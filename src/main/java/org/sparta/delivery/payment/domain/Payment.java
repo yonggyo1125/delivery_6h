@@ -94,7 +94,7 @@ public class Payment extends BaseUserEntity {
         }
 
         // 결제 승인 처리
-        ApproveResult approveResult = approvePayment.request(id);
+        ApproveResult approveResult = approvePayment.request(id, key);
         if (!approveResult.success()) {
             // 결제 실패시 처리
             throw new PaymentApproveFailureException(approveResult.reason());
