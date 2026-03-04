@@ -44,7 +44,7 @@ public class Payment extends BaseUserEntity {
     private PaymentStatus status;
 
     @Column(nullable = false)
-    public LocalDateTime requestedAt; // 결제 요청일시
+    private LocalDateTime requestedAt; // 결제 요청일시
     private LocalDateTime approvedAt; // 결제 승인일시
 
     @Embedded
@@ -69,6 +69,11 @@ public class Payment extends BaseUserEntity {
 
     // 결제 승인 완료 처리
     public void approve(String key, PaymentStatus status, LocalDateTime approvedAt, String paymentLog, int approvedAmount) {
+        // 이미 승인된 경우라면 처리하지 않음
+        if (this.status == PaymentStatus.DONE) {
+            return;
+        }
+
         // READY 또는 IN_PROGRESS 상태에서만 승인 가능
         if (this.status != PaymentStatus.READY && this.status != PaymentStatus.IN_PROGRESS) {
             throw new InvalidPaymentException("결제 승인이 가능한 상태가 아닙니다.");
