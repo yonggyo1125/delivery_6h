@@ -2,7 +2,9 @@ package org.sparta.delivery.payment.application;
 
 import lombok.RequiredArgsConstructor;
 import org.sparta.delivery.payment.domain.Payment;
+import org.sparta.delivery.payment.domain.PaymentId;
 import org.sparta.delivery.payment.domain.PaymentRepository;
+import org.sparta.delivery.payment.domain.exception.PaymentNotFoundException;
 import org.sparta.delivery.payment.domain.service.ApprovePayment;
 import org.sparta.delivery.payment.domain.service.CancelPayment;
 import org.sparta.delivery.payment.domain.service.OrderProvider;
@@ -28,6 +30,21 @@ public class PaymentService {
     }
 
     // 결제 승인 처리
-    public void approve(UUID paymentId) {
+    @Transactional
+    public void approve(UUID paymentId, String paymentKey) {
+        Payment payment = getPayment(paymentId);
+        payment.approve(paymentKey, approvePayment, cancelPayment);
+    }
+
+    // 결제 취소 처리
+    @Transactional
+    public void cancel(UUID paymentId) {
+        Payment payment = getPayment(paymentId);
+        payment.cancel(cancelPayment);
+
+    }
+
+    private Payment getPayment(UUID paymentId) {
+        return paymentRepository.findById(PaymentId.of(paymentId)).orElseThrow(PaymentNotFoundException::new);
     }
 }
