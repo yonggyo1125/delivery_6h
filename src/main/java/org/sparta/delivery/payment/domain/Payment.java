@@ -87,8 +87,6 @@ public class Payment extends BaseUserEntity {
             throw new InvalidPaymentException("결제 승인이 가능한 상태가 아닙니다.");
         }
 
-        this.key = key;
-
         if (this.key == null || this.key.isBlank()) {
             throw new InvalidPaymentException("결제 키(paymentKey)는 필수입니다.");
         }
@@ -109,6 +107,7 @@ public class Payment extends BaseUserEntity {
         }
 
         LocalDateTime approvedAt = approveResult.approvedAt();
+        this.key = key;
         this.paymentLog = approveResult.paymentLog();
         this.status = approveResult.status();
         this.approvedAt = approvedAt != null ? approvedAt : LocalDateTime.now();
