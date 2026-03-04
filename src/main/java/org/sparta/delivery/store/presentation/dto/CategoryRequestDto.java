@@ -2,6 +2,7 @@ package org.sparta.delivery.store.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,9 +15,15 @@ public class CategoryRequestDto {
 
     @Getter
     @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "카테고리 ID 리스트 요청")
     public static class Update {
-        @Schema(description = "조작할 카테고리 UUID 리스트", example = "[\"550e8400-e29b-41d4-a716-446655440000\"]")
+
+        @Schema(
+                description = "조작할 카테고리 UUID 리스트",
+                example = "[\"550e8400-e29b-41d4-a716-446655440000\"]",
+                requiredMode = Schema.RequiredMode.REQUIRED // 업데이트 시 리스트는 필수이므로 REQUIRED 설정
+        )
         @NotEmpty(message = "카테고리 ID는 최소 하나 이상이어야 합니다.")
         private List<UUID> categoryIds;
     }

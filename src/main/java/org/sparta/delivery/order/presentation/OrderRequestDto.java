@@ -32,7 +32,7 @@ public class OrderRequestDto {
         @Schema(description = "주문 대상 매장의 UUID", example = "550e8400-e29b-41d4-a716-446655440000")
         private UUID storeId;
 
-        @Schema(description = "매장명 (Snapshot용)", example = "용교네 치킨")
+        @Schema(description = "매장명 (Snapshot용)", example = "스파르타 치킨")
         private String storeName;
 
         @Schema(description = "매장 주소 (Snapshot용)")
@@ -52,7 +52,7 @@ public class OrderRequestDto {
         private String deliveryMemo;
 
         @Valid
-        @NotNull(message = "최소 1개 이상의 상품을 주문해야 합니다.")
+        @NotEmpty(message = "최소 1개 이상의 상품을 주문해야 합니다.") // NotNull보다 리스트 검증에 적합
         @Schema(description = "주문 항목 리스트")
         private List<Item> items;
 
@@ -149,28 +149,29 @@ public class OrderRequestDto {
     @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
     @Schema(description = "주문 목록 필터링 검색 조건")
     public static class Search {
-        @Schema(description = "주문 UUID 목록 검색 (복수 가능)")
+
+        @Schema(description = "주문 UUID 목록", example = "[\"550e8400-e29b-41d4-a716-446655440000\"]", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private List<UUID> orderIds;
 
-        @Schema(description = "주문자 성함 검색 (부분 일치)")
+        @Schema(description = "주문자 성함 (부분 일치)", example = "김르탄", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private String ordererName;
 
-        @Schema(description = "주문자 연락처 검색")
+        @Schema(description = "주문자 연락처", example = "010-1234-5678", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private String ordererMobile;
 
-        @Schema(description = "주문자 이메일 검색")
+        @Schema(description = "주문자 이메일", example = "yonggyo@sparta.com", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private String ordererEmail;
 
-        @Schema(description = "매장 UUID 목록 검색")
+        @Schema(description = "매장 UUID 목록", example = "[\"550e8400-e29b-41d4-a716-446655440000\"]", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private List<UUID> storeIds;
 
-        @Schema(description = "매장명 검색 (부분 일치)")
+        @Schema(description = "매장명 (부분 일치)", example = "치킨", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private String storeName;
 
-        @Schema(description = "배송지 주소 검색 (부분 일치)")
+        @Schema(description = "배송지 주소 (부분 일치)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private String deliveryAddress;
 
-        @Schema(description = "주문 상태 필터 (복수 가능)", example = "['ORDER_ACCEPT', 'DELIVERY']")
+        @Schema(description = "주문 상태 필터", example = "[\"ORDER_ACCEPT\", \"DELIVERY\"]", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private List<String> orderStatuses;
 
         public OrderQueryDto.Search toQuerySearch() {
