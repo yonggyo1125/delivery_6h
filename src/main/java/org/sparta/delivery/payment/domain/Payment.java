@@ -13,6 +13,8 @@ import org.sparta.delivery.payment.domain.exception.PaymentCancelFailureExceptio
 import org.sparta.delivery.payment.domain.service.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -53,7 +55,7 @@ public class Payment extends BaseUserEntity {
     private PaymentOrderInfo paymentOrderInfo; // 결제 상품 정보
 
     @Column(name="payment_log", columnDefinition = "jsonb")
-    private String paymentLog; // 결제로그
+    private List<PaymentLog> logs = new ArrayList<>(); // 결제로그
 
     @Builder
     public Payment(UUID orderId, OrderProvider orderProvider) {
@@ -76,7 +78,7 @@ public class Payment extends BaseUserEntity {
      * @param key : 결제 요청 성공 콜백으로 넘어온 paymentKey
      * @param approvePayment : 도메인 서비스, PG사에 결제 승인 처리
      */
-    public void approve(String key, ApprovePayment approvePayment) {
+    public void approve(String key, ApprovePayment approvePayment, CancelPayment cancelPayment) {
         // 이미 승인된 경우라면 처리하지 않음
         if (this.status == PaymentStatus.DONE) {
             return;
@@ -99,18 +101,22 @@ public class Payment extends BaseUserEntity {
 
         }
 
+        this.key = key;
+        this.logs.add(log(approveResult.paymentLog()));
+
         // 실결제 금액과 최초 등록 금액과 일치하는지 검증(위변조 방지), 검증 실패시 결제된 금액 취소
         int amount = this.paymentOrderInfo.getAmount().getValue();
         int approvedAmount = approveResult.approvedAmount();
         if (amount != approvedAmount) {
+
+            // 환불 처리
+            cancelPayment.cancel(id, key);
+            this.status = PaymentStatus.ABORTED;
             throw new PaymentAmountMismatchException(amount, approvedAmount);
         }
 
-        LocalDateTime approvedAt = approveResult.approvedAt();
-        this.key = key;
-        this.paymentLog = approveResult.paymentLog();
-        this.status = approveResult.status();
-        this.approvedAt = approvedAt != null ? approvedAt : LocalDateTime.now();
+        this.status = PaymentStatus.DONE;
+        this.approvedAt = approveResult.approvedAt() != null ? approveResult.approvedAt() : LocalDateTime.now();
 
         // 결제가 승인되면 주문상태를 변경하기 위한 후속 처리
         Events.trigger(new PaymentApprovedEvent(paymentOrderInfo.getOrderId()));
@@ -140,7 +146,7 @@ public class Payment extends BaseUserEntity {
 
         // 성공시에만 상태 변경 및 로그 업데이트, 후속처리
         this.status = PaymentStatus.CANCELED;
-        this.paymentLog = "%s\n------------------------------------------------------\n%s".formatted(this.paymentLog, result.paymentLog());
+        this.logs.add(log(result.paymentLog()));
 
         // 주문 취소후 후속 처리(주문서의 상태를 환불상태로 변경) - 이벤트 발행
         Events.trigger(new PaymentCancelledEvent(paymentOrderInfo.getOrderId()));
@@ -149,5 +155,10 @@ public class Payment extends BaseUserEntity {
     // 결제 실패/취소 처리
     public void abort() {
         this.status = PaymentStatus.ABORTED;
+    }
+
+    // 결제 기록
+    private PaymentLog log(String paymentLog) {
+        return  new PaymentLog(LocalDateTime.now(), paymentLog);
     }
 }
