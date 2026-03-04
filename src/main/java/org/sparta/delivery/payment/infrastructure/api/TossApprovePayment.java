@@ -87,7 +87,7 @@ public class TossApprovePayment implements ApprovePayment {
             String code = result == null || result.get("code") == null ? "UNKNOWN":result.get("code").asText();
             String message = result == null || result.get("message") == null ? "UNKNOWN":result.get("message").asText();
 
-            log.info("토스 결제 승인 실패, 주문 ID: {}, 결제 ID: {}, 멱등성 키: {}, Payment Key: {}, 결제금액: {}, 에러코드: {}, 에러메세지: {}", orderId, paymentId.getId(), idempotencyKey, paymentKey, amount, code, message);
+            log.info("토스 결제 승인 실패, HTTP 상태코드: {}, 주문 ID: {}, 결제 ID: {}, 멱등성 키: {}, Payment Key: {}, 결제금액: {}, 에러코드: {}, 에러메세지: {}", e.getStatusCode().value(), orderId, paymentId.getId(), idempotencyKey, paymentKey, amount, code, message);
 
             return builder
                     .success(false)
