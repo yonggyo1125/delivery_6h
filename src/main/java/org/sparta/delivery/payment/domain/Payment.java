@@ -8,6 +8,7 @@ import org.sparta.delivery.payment.domain.event.PaymentApprovedEvent;
 import org.sparta.delivery.payment.domain.event.PaymentCancelledEvent;
 import org.sparta.delivery.payment.domain.exception.InvalidPaymentException;
 import org.sparta.delivery.payment.domain.exception.PaymentAmountMismatchException;
+import org.sparta.delivery.payment.domain.exception.PaymentApproveFailureException;
 import org.sparta.delivery.payment.domain.exception.PaymentCancelFailureException;
 import org.sparta.delivery.payment.domain.service.*;
 
@@ -96,6 +97,8 @@ public class Payment extends BaseUserEntity {
         ApproveResult approveResult = approvePayment.request(id);
         if (!approveResult.success()) {
             // 결제 실패시 처리
+            throw new PaymentApproveFailureException(approveResult.reason());
+
         }
 
         // 실결제 금액과 최초 등록 금액과 일치하는지 검증(위변조 방지), 검증 실패시 결제된 금액 취소
