@@ -12,7 +12,6 @@ import java.util.UUID;
 @ToString
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewOrderInfo {
     @Column(length=45, nullable = false)
     private UUID orderId; // 주문번호
@@ -23,5 +22,11 @@ public class ReviewOrderInfo {
     @Column(name="order_items", columnDefinition = "jsonb")
     private List<ReviewOrderItem> items; // 주문상품 목록
 
-
+    @Builder
+    protected ReviewOrderInfo (UUID orderId, UUID storeId, String storeName, List<ReviewOrderItem> items) {
+        this.orderId = orderId;
+        this.storeId = storeId;
+        this.storeName = storeName;
+        this.items = items;
+    }
 }

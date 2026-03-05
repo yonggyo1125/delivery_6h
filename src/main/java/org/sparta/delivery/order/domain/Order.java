@@ -61,8 +61,6 @@ public class Order extends BaseUserEntity {
     @Embedded
     private DeliveryInfo deliveryInfo;
 
-    private double reviewScore; // 리뷰 점수
-
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name="P_ORDER_ITEM", joinColumns = @JoinColumn(name="order_id"))
     @OrderColumn(name="item_idx")

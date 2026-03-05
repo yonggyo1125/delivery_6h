@@ -54,6 +54,8 @@ public class Store extends BaseUserEntity {
     @Enumerated(EnumType.STRING)
     private StoreStatus status; // 매장 운영 상태
 
+    private double reviewScore; // 리뷰 평점
+
     @Embedded
     private Owner owner;
 
@@ -348,6 +350,11 @@ public class Store extends BaseUserEntity {
                 .forEach(StoreCategory::remove);
     }
     ///// 카테고리 E
+
+    // 리뷰 평균 업데이트(시스템에서 자동 업데이트 되므로 권한 체크 없음)
+    public void systemUpdateReviewScore(int score) {
+        this.reviewScore = score;
+    }
 
     /**
      *  영업중이고 영업일 및 시간에 해당하는 경우 주문 가능
