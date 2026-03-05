@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sparta.delivery.global.domain.exception.BadRequestException;
 import org.sparta.delivery.payment.application.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,9 @@ public class PaymentController {
     @GetMapping("/fail")
     public void fail(PaymentRequestDto.Fail request) {
 
-        // 실패 콜백 구현 예정
+        log.error("[결제 실패 콜백 유입] 코드: {}, 메시지: {}", request.getCode(), request.getMessage());
+
+        throw new BadRequestException("[%s]%s".formatted(request.getCode(), request.getMessage()));
     }
 
     @Operation(summary = "결제 취소", description = "완료된 결제를 취소(환불) 처리합니다.")
