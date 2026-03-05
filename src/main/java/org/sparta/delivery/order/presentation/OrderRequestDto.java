@@ -150,7 +150,7 @@ public class OrderRequestDto {
     @Schema(description = "주문 목록 필터링 검색 조건")
     public static class Search {
 
-        @Schema(description = "주문 UUID 목록", example = "[\"550e8400-e29b-41d4-a716-446655440000\"]", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Schema(description = "주문 ID 목록", example = "[\"550e8400-e29b-41d4-a716-446655440000\"]", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private List<UUID> orderIds;
 
         @Schema(description = "주문자 성함 (부분 일치)", example = "김르탄", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
