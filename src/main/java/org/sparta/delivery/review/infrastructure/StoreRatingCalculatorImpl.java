@@ -20,7 +20,8 @@ public class StoreRatingCalculatorImpl implements StoreRatingCalculator {
 
         Double avg = jpaQueryFactory.select(review.content.score.avg())
                 .from(review)
-                .where(review.info.storeId.eq(storeId))
+                .where(review.info.storeId.eq(storeId)
+                        .and(review.deletedAt.isNull()))
                 .fetchOne();
 
         return avg == null ? 0.0 : avg;

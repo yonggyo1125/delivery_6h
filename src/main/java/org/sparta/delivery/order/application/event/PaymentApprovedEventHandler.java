@@ -49,7 +49,7 @@ public class PaymentApprovedEventHandler {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recover(Exception e, PaymentApprovedEvent event) {
         log.error("주문 상태 변경 최종 실패. 사유: {}. 자동 환불을 진행합니다. 주문ID: {}",
-                e.getMessage(), event.orderId());
+                e.getMessage(), event.orderId(), e);
         Order order = getOrder(event.orderId());
         order.failPaymentConfirm();
 
