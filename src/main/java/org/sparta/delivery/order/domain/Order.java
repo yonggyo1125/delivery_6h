@@ -45,7 +45,11 @@ import static org.sparta.delivery.order.domain.OrderStatus.*;
 
 @Entity
 @ToString @Getter
-@Table(name="P_ORDER")
+@Table(name="P_ORDER", indexes = {
+        @Index(name = "idx_order_user_created", columnList = "orderer_id, created_at desc"), //  사용자별 주문 목록 조회 (최신순)
+        @Index(name = "idx_order_store_status", columnList = "store_id, status, created_at desc"), // 매장별 주문 관리 및 정산
+        @Index(name = "idx_order_status_created", columnList = "status, created_at desc") // 시스템 관리자용 전체 주문 상태 및 생성일 조회
+})
 @Access(AccessType.FIELD)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseUserEntity {
