@@ -92,7 +92,6 @@ public class ProductServiceHelper {
     // 상점 정보 조회
     public static Store getStore(UUID storeId, StoreRepository repository, RoleCheck roleCheck, OwnerCheck ownerCheck) {
         Store store = repository.findById(StoreId.of(storeId)).orElseThrow(StoreNotFoundException::new);
-        store.checkAuthority(roleCheck, ownerCheck);
 
         return store;
     }
