@@ -1,54 +1,84 @@
-# 🛵 Delivery Service: Core Architecture Insight
+# 🚀 Delivery Service Platform: Backend Project
 
-이 프로젝트는 대규모 트래픽 환경에서도 데이터의 신뢰성을 잃지 않도록 설계된 **도메인 중심 배달 서비스**입니다. 기술적 화려함보다 비즈니스 무결성과 안정적인 확장성에 초점을 맞추었습니다.
+> **확장성과 안정성을 동시에 고려한 CQRS 및 이벤트 기반 배달 플랫폼 백엔드 시스템**
 
-## 🏗 Architectural Philosophy
-
-### 1. 역사적 무결성을 위한 스냅샷 전략
-
-주문 도메인은 상위 도메인(Store, Product)의 변화에 영향을 받지 않아야 합니다.
-
-* **StoreInfo / ProductInfo**: 주문 발생 시점의 매장 명칭, 주소, 상품 단가 등을 별도의 임베디드 객체로 복사하여 저장합니다. 이를 통해 원본 엔티티가 변경되거나 삭제되어도 과거 주문 내역의 정확한 데이터를 보존합니다.
-
-### 2. 엔티티 자율성 및 방어적 설계
-
-모든 엔티티는 외부의 간섭 없이 스스로 비즈니스 규칙을 준수합니다.
-
-* **Self-Validation**: `Order` 엔티티는 취소 가능 시간(5분) 및 현재 상태를 스스로 체크하여 상태 전이를 결정합니다.
-* **Constructor-Level Protection**: `OrderItem`은 생성 시점에 도메인 서비스를 통해 가격 변조 여부와 상품 노출 상태를 전수 검사하며, 부적합한 경우 객체 생성을 거부합니다.
-
-### 3. 고성능 벌크 처리 및 데이터 매칭
-
-운영 효율성을 위해 대량의 데이터를 안전하고 빠르게 처리합니다.
-
-* **$O(N)$ 최적화**: 카테고리 및 옵션 변경 시 `Map` 자료구조를 활용하여 기존 데이터와의 매칭 성능을 최적화했습니다.
-* **Soft Delete 일관성**: `@SQLRestriction`을 프로젝트 전반에 적용하여, 논리 삭제된 데이터가 비즈니스 흐름에 노출되는 것을 DB 레벨에서 원천 차단합니다.
-
-## 🛠 Tech Design Choices
-
-* **DDD (Domain-Driven Design)**: 도메인 간 협력을 인터페이스로 추상화하여 결합도를 낮춤.
-* **Optimistic Locking**: `@Version` 필드를 통한 낙관적 락으로 상품 수정 및 주문 시 발생할 수 있는 데이터 경합 방지.
-* **JSONB Persistence**: 가변적인 옵션 구조를 `jsonb` 타입으로 저장하여 유연성을 확보하고, JPA Converter를 통해 객체 지향적인 접근 방식을 유지.
-* **Advanced Swagger Integration**: `@PageableAsQueryParam` 및 상세한 `@Schema` 설정을 통해 API 문서 자체만으로도 프론트엔드와 완벽한 소통이 가능하도록 구성.
-
-## 📂 System Core Modules
-
-* **Category**: 관리자 전용 벌크 관리 인터페이스 제공.
-* **Store**: 매장 운영 시간, 브레이크 타임 및 영업 상태 제어 로직 응집.
-* **Order**: 결제 전 가격 전수 검증 및 주문 생명 주기(Lifecycle) 관리.
-* **Global Infrastructure**: 커스텀 예외 처리 시스템 및 보안 프레임워크 추상화 계층.
+본 프로젝트는 대규모 트래픽 환경에서도 안정적으로 동작할 수 있는 배달 서비스의 핵심 로직(주문 상태 관리, 권한 검증, 실시간 평점 집계 등)을 구현한 백엔드 플랫폼입니다. **레이어드 아키텍처**를 기반으로 **CQRS**와 **이벤트 기반 아키텍처(EDA)**를 도입하여 시스템 간 결합도를 낮추고 유지보수성을 극대화했습니다.
 
 ---
-### 🧠 아키텍트의 사고 모드: 설계 복기 (Review Insight)
 
-#### 1. "데이터는 흐르지만, 진실은 박제되어야 한다" (Snapshot Strategy)
+## 🛠 Tech Stack
 
-가장 인상적인 사고의 흐름은 **StoreInfo와 ProductInfo의 값 객체(VO)화**입니다. 보통의 개발자는 Store ID나 Product ID만 참조(Reference)하고 정규화에 집중합니다. "어제 10,000원이었던 치킨이 오늘 12,000원이 되었을 때, 어제의 주문 내역이 변하면 안 된다"는 비즈니스 불변성을 알고 있습니다. 참조 대신 상태를 복사해 넣는 결단은 이 시스템을 실무형으로 만드는 가장 큰 차이점입니다.
+- **Language & Framework**: Java 25, Spring Boot 3.x
+- **Persistence**: Spring Data JPA, **QueryDSL** (동적 쿼리 및 성능 최적화)
+- **Database**: PostgreSQL (pgrouting), Redis
+- **Security**: Spring Security, **Keycloak** (OIDC 기반 인증/인가)
+- **Reliability**: Spring Retry, Spring Async
+- **Documentation**: Swagger (OpenAPI 3.0)
+- **Infrastructure**: Docker, GitHub Actions (CI/CD)
 
-#### 2. "엔티티는 스스로를 수호하는 성벽이다" (Domain Integrity)
+---
 
-`OrderItem`이나 `Order` 생성자에서 `ProductProvider`와 `OptionCheck`를 주입받아 즉시 검증하는 로직은 **'Fail-Fast'** 사고의 정석입니다. 서비스 레이어에 검증 로직을 나열하는 대신, "유효하지 않은 객체는 아예 메모리에 태어나지도 못하게 하겠다"는 강한 의지가 느껴집니다. 이는 코드의 가독성을 높일 뿐 아니라, 분산된 서비스 로직에서 발생할 수 있는 데이터 오염을 원천 차단합니다.
+## 🏗 System Architecture
 
-#### 3. "기술은 변하지만 도메인은 영원하다" (Abstraction)
+시스템은 명령(Command)과 조회(Query)의 책임을 분리하는 **CQRS 패턴**을 적용하여 구현되었습니다.
 
-Keycloak을 사용하면서도 `RoleCheck`, `OwnerCheck` 인터페이스로 권한 로직을 추상화한 것은 미래를 내다본 설계입니다. 만약 내일 보안 솔루션을 다른 것으로 교체하더라도, `Order`나 `Store` 엔티티는 단 한 줄도 수정할 필요가 없습니다. 이는 도메인을 기술적 인프라로부터 격리하려는 **클린 아키텍처적 사고**의 결과물입니다.
+- **Presentation Layer**: RESTful API 설계 및 전용 Request/Response DTO를 통해 계층 간 의존성을 완전히 분리.
+- **Application Layer**: 비즈니스 흐름 제어 및 응용 로직 수행, 서비스 간 결합도 완화를 위한 서비스 DTO 활용.
+- **Domain Layer**: 핵심 비즈니스 규칙이 응집된 Rich Domain Model 지향 및 VO(Value Object) 적극 활용.
+- **Infrastructure Layer**: 외부 API 연동(Toss Payment, Kakao Local), QueryDSL을 활용한 복잡한 데이터 조회 로직 구현.
+
+---
+
+## 🔥 Key Technical Implementation
+
+### 1. CQRS 기반의 고성능 리뷰 시스템
+리뷰 도메인의 복잡한 검색 요구사항과 대량 조회를 처리하기 위해 명령과 조회를 분리했습니다.
+- **동적 검색 최적화**: QueryDSL을 도입하여 제목, 내용, 작성자 등 다양한 조건의 동적 검색을 0.1초 내외로 처리하도록 최적화.
+- **페이징 성능 개선**: `PageableExecutionUtils`를 적용하여 데이터가 적거나 마지막 페이지일 경우 불필요한 **Count 쿼리를 생략**하여 DB 부하 경감.
+- **Soft Delete 정합성**: Repository 레벨에서 삭제되지 않은 데이터만 조회하도록 필터링을 강제하여 비즈니스 데이터 무결성 확보.
+
+### 2. 이벤트 기반 상점 평점 자동 갱신 (EDA)
+사용자 경험을 해치지 않으면서 데이터의 최종 일관성을 보장하는 이벤트 핸들링 구조를 구축했습니다.
+- **비동기 처리**: 리뷰 작성/수정/삭제 시 메인 트랜잭션과 별도로 평점 업데이트 로직을 `@Async`로 분리하여 응답 속도 최적화.
+- **트랜잭션 분리**: `@TransactionalEventListener(phase = AFTER_COMMIT)`와 `Propagation.REQUIRES_NEW`를 조합하여 리뷰 저장 성공 시에만 평점 업데이트가 수행되도록 안전하게 격리.
+- **장애 복구 로직**: `@Retryable`과 `Exponential Backoff`를 적용하여 일시적인 장애 시 자동 재시도하며, 최종 실패 시 `@Recover`를 통한 로그 기록 및 관리자 알림 구성.
+
+### 3. 데이터 접근 최적화 및 유니크 제약
+- **복합 인덱스 설계**: `Order` 엔티티에 사용자/매장별 최신순 조회를 위한 인덱스(`(store_id, status, created_at desc)`)를 적용하여 대량 데이터 상황에서의 조회 성능 방어.
+- **데이터 무결성 강제**: 한 주문당 하나의 리뷰만 작성 가능하도록 DB 레벨에서 `(order_id, deleted_at)` 복합 유니크 인덱스를 설정하여 동시성 이슈 원천 차단.
+
+### 4. 비동기 보안 컨텍스트 전파
+- **문제 해결**: 별도 스레드에서 동작하는 `@Async` 로직에서도 현재 사용자의 권한 정보를 활용할 수 있도록 `DelegatingSecurityContextAsyncTaskExecutor`를 설정하여 비동기 환경에서의 보안성 유지.
+
+---
+
+## 📊 Data Modeling & Indexing
+
+| 테이블명 | 주요 인덱스 및 제약 조건 | 목적 |
+| :--- | :--- | :--- |
+| **P_ORDER** | `orderer_id, created_at desc` | 사용자 주문 내역 최신순 조회 최적화 |
+| **P_ORDER** | `store_id, status, created_at desc` | 점주용 주문 관리 페이지 조회 성능 개선 |
+| **P_REVIEW** | `order_id, deleted_at` (Unique) | 1주문 1리뷰 정책 강제 및 Soft Delete 대응 |
+
+---
+
+## 📖 API Documentation (V1)
+
+모든 API 스펙은 Swagger를 통해 자동 문서화되며, Bean Validation을 통한 요청 데이터 검증을 지원합니다.
+
+- **Base Endpoint**: `/v1/reviews`
+- **Auth**: Keycloak Bearer Token (JWT)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Docker & Docker Compose
+- JDK 25
+- Gradle
+
+### Installation & Run
+1. 저장소 클론: `git clone https://github.com/yonggyo1125/delivery_6h.git`
+2. 인프라 실행: `docker-compose up -d`
+3. 애플리케이션 실행: `./gradlew bootRun`
