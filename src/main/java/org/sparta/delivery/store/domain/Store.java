@@ -9,6 +9,7 @@ import org.sparta.delivery.global.domain.exception.UnAuthorizedException;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.OwnerCheck;
 import org.sparta.delivery.global.domain.service.RoleCheck;
+import org.sparta.delivery.global.domain.service.UserDetails;
 import org.sparta.delivery.store.domain.dto.StoreDto;
 import org.sparta.delivery.store.domain.exception.InvalidCategoryException;
 import org.sparta.delivery.store.domain.exception.ProductDuplicatedException;
@@ -149,11 +150,12 @@ public class Store extends BaseUserEntity {
     }
 
     // 상점 삭제(Soft Delete)
-    public void remove(RoleCheck roleCheck, OwnerCheck ownerCheck) {
+    public void remove(RoleCheck roleCheck, OwnerCheck ownerCheck, UserDetails userDetails) {
         // 권한체크
         checkAuthority(roleCheck, ownerCheck);
 
-        deletedAt = LocalDateTime.now();
+        //deletedAt = LocalDateTime.now();
+        delete(userDetails);
 
         // 상품 삭제
         if (products != null) {

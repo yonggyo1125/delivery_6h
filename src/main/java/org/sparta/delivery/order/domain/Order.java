@@ -42,7 +42,6 @@ import static org.sparta.delivery.order.domain.OrderStatus.*;
  * 6. 배송정보 변경은 배송중 이전 단계에서만 가능
  * 7. 주문완료(ORDER_DONE)으로 변경하면 후기 작성 요청 이벤트 발생 시킨다.
  */
-
 @Entity
 @ToString @Getter
 @Table(name="P_ORDER", indexes = {

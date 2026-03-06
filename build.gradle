@@ -74,6 +74,9 @@ dependencies {
     // Spring AOP (Retry가 프록시 기반으로 동작하기 위해 필수)
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+    //Spring Data Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

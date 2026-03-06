@@ -5,6 +5,11 @@ server:
 spring:
   application:
     name: delivery
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
 
   datasource:
     driver-class-name: org.postgresql.Driver
