@@ -1,0 +1,46 @@
+/* 기존 스타일 유지 및 아래 내용 추가 */
+.test-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #e5e8eb;
+    border-radius: 12px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4e5968;
+}
+
+.input-group input {
+    padding: 10px;
+    border: 1px solid #d1d6db;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.btn-secondary {
+    padding: 10px;
+    background-color: #e8f3ff;
+    color: #1b64da;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background: #e5e8eb;
+    margin: 20px 0;
+}

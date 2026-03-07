@@ -38,3 +38,4 @@ out/
 .idea/
 generated/
 .env*
+redis_data/

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Delivery Service - 결제 테스트</title>
+    <link rel="stylesheet" href="toss.css">
+    <script src="https://js.tosspayments.com/v1/payment-widget"></script>
+</head>
+<body>
+<div class="payment-container">
+    <h2>주문 결제 테스트</h2>
+    <b>주문을 먼저 등록하고 실제 DB에 있는 정보를 가지고 테스트 하세요.</b>
+    <div class="test-form">
+        <div class="input-group">
+            <label for="order-id-input">주문 번호</label>
+            <input type="text" id="order-id-input" placeholder="자동 생성됨">
+        </div>
+        <div class="input-group">
+            <label for="order-name-input">주문 상품명</label>
+            <input type="text" id="order-name-input" value="맛있는 치킨 외 1건">
+        </div>
+        <div class="input-group">
+            <label for="order-amount-input">결제 금액 (원)</label>
+            <input type="number" id="order-amount-input" value="25000">
+        </div>
+        <button id="apply-btn" class="btn-secondary">위젯 금액 갱신</button>
+    </div>
+
+    <hr class="divider">
+
+    <div id="payment-method"></div>
+    <div id="agreement"></div>
+
+    <button id="payment-button" class="btn-pay">결제하기</button>
+</div>
+
+<script src="toss.js"></script>
+</body>
+</html>
