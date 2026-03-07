@@ -25,7 +25,7 @@ document.getElementById("payment-button").addEventListener("click", () => {
     paymentWidget.requestPayment({
         orderId: orderId,
         orderName: orderName,
-        customerName: "Yonggyo",
+        customerName: "주문자명",
         successUrl: window.location.origin + "/v1/payments/success",
         failUrl: window.location.origin + "/v1/payments/fail",
     }).catch(error => {
