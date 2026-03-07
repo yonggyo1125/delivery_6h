@@ -2,8 +2,7 @@ package org.sparta.delivery.store.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -13,9 +12,7 @@ import java.util.UUID;
 @Schema(description = "매장 카테고리 조작 요청 DTO")
 public class CategoryRequestDto {
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "카테고리 ID 리스트 요청")
     public static class Update {
 

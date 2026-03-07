@@ -14,7 +14,7 @@ import java.util.UUID;
 @Schema(description = "주문 도메인 통합 요청 DTO")
 public class OrderRequestDto {
 
-    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
     @Schema(description = "주문 생성을 위한 요청 데이터")
     public static class Create {
         @Schema(description = "주문자 실명 (미입력 시 회원 정보 사용)", example = "김르탄")
@@ -66,7 +66,7 @@ public class OrderRequestDto {
         }
     }
 
-    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
     @Schema(description = "주문 개별 상품 정보")
     public static class Item {
         @NotBlank(message = "상품 코드는 필수입니다.")
@@ -89,7 +89,7 @@ public class OrderRequestDto {
         }
     }
 
-    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
     @Schema(description = "선택한 옵션 정보")
     public static class Option {
         @NotBlank(message = "옵션 명칭은 필수입니다.")

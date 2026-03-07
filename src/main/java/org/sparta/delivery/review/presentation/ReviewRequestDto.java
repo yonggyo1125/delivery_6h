@@ -2,10 +2,7 @@ package org.sparta.delivery.review.presentation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.sparta.delivery.review.application.ReviewServiceDto;
 
 import java.util.UUID;
@@ -13,9 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReviewRequestDto {
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "리뷰 생성 요청")
     public static class Create {
 
@@ -46,9 +41,7 @@ public class ReviewRequestDto {
         }
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "리뷰 수정 요청")
     public static class Change {
 

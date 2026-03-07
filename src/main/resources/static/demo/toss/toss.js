@@ -4,7 +4,7 @@ const paymentWidget = PaymentWidget(clientKey, customerKey);
 
 // 초기값 설정
 let amount = parseInt(document.getElementById("order-amount-input").value);
-document.getElementById("order-id-input").value = "ORDER_" + new Date().getTime();
+document.getElementById("order-id-input").value = "49191805-a08f-463d-b6a2-b7917f1a724c";
 
 // 1. 결제 위젯 렌더링
 const paymentMethodsWidget = paymentWidget.renderPaymentMethods("#payment-method", { value: amount });

@@ -1,9 +1,8 @@
 package org.sparta.delivery.store.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.sparta.delivery.store.domain.query.dto.StoreQueryDto;
 
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class StoreQueryRequestDto {
 
-    @Getter @Setter
+    @Data
     @Schema(description = "매장 통합 검색 요청 객체")
     public static class Search {
 
@@ -58,7 +57,7 @@ public class StoreQueryRequestDto {
         }
     }
 
-    @Getter @Setter
+    @Data
     @Schema(description = "내 주변 매장 조회 요청 객체")
     public static class Nearest {
         @Schema(description = "현재 위도 (Latitude)", example = "37.4979", requiredMode = Schema.RequiredMode.REQUIRED)

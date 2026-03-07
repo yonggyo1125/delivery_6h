@@ -13,7 +13,7 @@ import java.util.UUID;
 public class PaymentRequestDto {
 
     // 결제 승인 요청 (Success Callback용)
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Schema(description = "결제 승인 요청 (성공 콜백)")
@@ -34,7 +34,7 @@ public class PaymentRequestDto {
     /**
      * 결제 실패 요청 (Fail Callback용)
      */
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Fail {
@@ -48,7 +48,7 @@ public class PaymentRequestDto {
     /**
      * 결제 취소 요청
      */
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Schema(description = "결제 취소 요청")

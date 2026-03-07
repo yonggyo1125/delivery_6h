@@ -5,8 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -16,9 +15,7 @@ import java.util.UUID;
 @Schema(description = "상품 관련 요청 DTO")
 public class ProductRequestDto {
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "상품 등록 및 수정 요청")
     public static class Save {
         @Schema(description = "상품 관리 코드 (지정되지 않으면 자동 생성)", example = "CHICKEN-001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
@@ -45,9 +42,7 @@ public class ProductRequestDto {
         private List<Option> options;
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "상품 옵션 정보")
     public static class Option {
         @Schema(description = "옵션명", example = "맵기 선택", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -66,9 +61,7 @@ public class ProductRequestDto {
         private List<SubOption> subOptions;
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "상품 하위 옵션 정보")
     public static class SubOption {
         @Schema(description = "하위 옵션명", example = "아주 매운맛", requiredMode = Schema.RequiredMode.REQUIRED)

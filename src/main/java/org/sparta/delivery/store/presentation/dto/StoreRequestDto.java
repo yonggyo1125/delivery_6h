@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -16,9 +14,7 @@ import java.util.UUID;
 @Schema(description = "매장 관련 요청 DTO")
 public class StoreRequestDto {
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "매장 신규 등록 요청")
     public static class Create {
         @Schema(description = "매장명", example = "스파르타 치킨", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -48,9 +44,7 @@ public class StoreRequestDto {
         private List<UUID> categoryIds;
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "매장 정보 수정 요청")
     public static class ChangeInfo {
         @Schema(description = "점주 이름", example = "홍길동", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -80,9 +74,7 @@ public class StoreRequestDto {
         private String address;
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Schema(description = "매장 운영 시간 요청")
     public static class Operation {
         @Schema(description = "요일", example = "MONDAY", requiredMode = Schema.RequiredMode.REQUIRED)
