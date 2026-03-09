@@ -106,6 +106,15 @@ public class Store extends BaseUserEntity {
             throw new BadRequestException("이미 등록된 매장이 있습니다.");
         }
 
+        // 분류 추가
+        createCategory(StoreDto.CategoryDto
+                .builder()
+                .roleCheck(roleCheck)
+                .ownerCheck(ownerCheck)
+                .categoryCheck(categoryCheck)
+                .categoryIds(categoryIds)
+                .build());
+
         this.id = storeId == null ? StoreId.of() : StoreId.of(storeId);
         this.owner = new Owner(ownerCheck.getOwnerId(), ownerName);
         this.name = name;
@@ -115,14 +124,7 @@ public class Store extends BaseUserEntity {
         this.location = new StoreLocation(address, addressToCoords);
         this.status = StoreStatus.PREPARING;
 
-        // 분류 추가
-        createCategory(StoreDto.CategoryDto
-                .builder()
-                .roleCheck(roleCheck)
-                .ownerCheck(ownerCheck)
-                .categoryCheck(categoryCheck)
-                .categoryIds(categoryIds)
-                .build());
+
     }
 
     // 상점 일반 정보 수정
