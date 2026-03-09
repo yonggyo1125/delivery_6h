@@ -40,7 +40,12 @@ dependencies {
     // 스프링 시큐리티, 키클록 의존성 E
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.ai:spring-ai-starter-model-openai' // Spring AI - Open AI
+
+    // Spring AI 의존성 S
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc'
+    // Spring AI 의존성 E
+
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13' // Swagger API
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

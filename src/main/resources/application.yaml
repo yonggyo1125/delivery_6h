@@ -52,6 +52,9 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+      chat:
+        memory.repository.jdbc:
+          initialize-schema: always
 
 # Actuator 설정
 management:

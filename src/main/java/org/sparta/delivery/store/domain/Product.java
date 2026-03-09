@@ -5,7 +5,9 @@ import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 import org.sparta.delivery.global.domain.BaseUserEntity;
 import org.sparta.delivery.global.domain.Price;
+import org.sparta.delivery.global.domain.exception.BadRequestException;
 import org.sparta.delivery.store.domain.exception.ProductOptionDuplicatedException;
+import org.sparta.delivery.store.domain.service.AiGenerateProductName;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -38,7 +40,7 @@ public class Product extends BaseUserEntity {
     @Version
     private int version; // 낙관적 Lock
 
-    @Column(length=30, unique = true, nullable = false)
+    @Column(length=45, unique = true, nullable = false)
     private String productCode; // 상품 관리 코드
 
     private UUID category;
@@ -66,11 +68,10 @@ public class Product extends BaseUserEntity {
     private List<ProductOption> options;
 
     @Builder
-    protected Product(StoreId storeId, int productIdx, UUID categoryId, String productCode, String name, int price, List<ProductOption> options) {
+    protected Product(StoreId storeId, int productIdx, UUID categoryId, String productCode, String name, int price, List<ProductOption> options, boolean aiGenerated, String aiContext, AiGenerateProductName generate) {
         this.id = new ProductId(storeId, productIdx);
         this.category = categoryId;
         this.productCode = StringUtils.hasText(productCode) ? productCode : UUID.randomUUID().toString();
-        this.name = name;
         this.price = new Price(price);
         this.status = ProductStatus.READY;
 
@@ -78,6 +79,29 @@ public class Product extends BaseUserEntity {
         if (options != null) {
             this.options.addAll(options);
         }
+
+        setName(name, aiGenerated, aiContext, generate);
+    }
+
+
+    // 상품명 설정, ai가 생성하는 상품명이 아니라면 name은 필수 입력값
+    // ai가 생성하는 상품명이라면 생성한 후 name 대체
+    private void setName(String name, boolean aiGenerated, String aiContext, AiGenerateProductName aiGenerate) {
+
+        if (!aiGenerated) {
+            if (!StringUtils.hasText(name)) {
+                throw new BadRequestException("상품명은 필수 입력항목 입니다.");
+            }
+        } else { // AI 상품명 생성
+            name = aiGenerate.generate(aiContext, productCode);
+            if (!StringUtils.hasText(name)) {
+                throw new BadRequestException("AI가 상품명을 생성하는 데 실패했습니다.");
+            }
+        }
+
+        this.name = name;
+
+
     }
 
     // 상품 삭제 (Soft Delete)

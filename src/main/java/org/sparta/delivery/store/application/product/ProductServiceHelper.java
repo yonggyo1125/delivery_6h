@@ -8,6 +8,7 @@ import org.sparta.delivery.store.domain.*;
 import org.sparta.delivery.store.domain.dto.StoreDto;
 import org.sparta.delivery.store.domain.exception.ProductNotFoundException;
 import org.sparta.delivery.store.domain.exception.StoreNotFoundException;
+import org.sparta.delivery.store.domain.service.AiGenerateProductName;
 import org.sparta.delivery.store.domain.service.CategoryCheck;
 import org.sparta.delivery.global.domain.service.OwnerCheck;
 
@@ -19,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // 유틸리티 클래스 인스턴스화 방지
 public class ProductServiceHelper {
 
-    public static StoreDto.ProductDto toProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, CategoryCheck categoryCheck, StoreServiceDto.Product dto) {
+    public static StoreDto.ProductDto toProduct(RoleCheck roleCheck, OwnerCheck ownerCheck, CategoryCheck categoryCheck, AiGenerateProductName aiGenerateProductName, StoreServiceDto.Product dto) {
         return StoreDto.ProductDto.builder()
                 .roleCheck(roleCheck)
                 .ownerCheck(ownerCheck)
@@ -28,6 +29,9 @@ public class ProductServiceHelper {
                 .categoryId(dto.getCategoryId())
                 .name(dto.getName())
                 .price(dto.getPrice())
+                .aiGenerated(dto.isAiGenerated())
+                .aiContext(dto.getAiContext())
+                .aiGenerateProductName(aiGenerateProductName)
                 .options(toOptions(dto.getOptions()))
                 .build();
     }

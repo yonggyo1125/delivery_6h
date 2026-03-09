@@ -25,8 +25,13 @@ public class ProductRequestDto {
         @NotNull(message = "카테고리는 필수입니다.")
         private UUID categoryId;
 
-        @Schema(description = "상품명", example = "황금올리브 치킨", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank(message = "상품명은 필수입니다.")
+        @Schema(description = "AI 자동 상품명 생성 여부 (true일 경우 AI가 상품명 생성)", example = "false", defaultValue = "false")
+        private boolean aiGenerated = false;
+
+        @Schema(description = "AI 상품명 생성을 위한 상세 특징 정보 (AI 생성 시 권장)", example = "매콤한 맛이 강하고 바삭한 식감을 강조한 후라이드 치킨", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        private String aiContext;
+
+        @Schema(description = "상품명 (aiGenerated가 false일 경우 필수 입력)", example = "황금올리브 치킨",  requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         private String name;
 
         @Schema(description = "상품 가격", example = "20000", requiredMode = Schema.RequiredMode.REQUIRED)

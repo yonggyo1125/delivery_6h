@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.sparta.delivery.global.domain.service.AddressToCoords;
 import org.sparta.delivery.global.domain.service.RoleCheck;
 import org.sparta.delivery.store.domain.*;
+import org.sparta.delivery.store.domain.service.AiGenerateProductName;
 import org.sparta.delivery.store.domain.service.CategoryCheck;
 import org.sparta.delivery.global.domain.service.OwnerCheck;
 
@@ -64,6 +65,9 @@ public class StoreDto {
         private String productCode;
         private UUID categoryId;
         private String name;
+        private boolean aiGenerated;
+        private String aiContext;
+        private AiGenerateProductName aiGenerateProductName;
         private int price;
         private List<ProductOptionDto> options;
     }

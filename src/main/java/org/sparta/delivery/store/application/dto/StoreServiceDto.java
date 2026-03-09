@@ -62,6 +62,8 @@ public class StoreServiceDto {
         private UUID categoryId;
         private String name;
         private int price;
+        private boolean aiGenerated;
+        private String aiContext;
         private List<ProductOption> options;
     }
 

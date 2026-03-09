@@ -111,6 +111,8 @@ public class ProductController {
                 .productCode(request.getProductCode())
                 .categoryId(request.getCategoryId())
                 .name(request.getName())
+                .aiGenerated(request.isAiGenerated())
+                .aiContext(request.getAiContext())
                 .price(request.getPrice())
                 .options(request.getOptions() == null ? null :
                         request.getOptions().stream().map(this::toOptionServiceDto).toList())
