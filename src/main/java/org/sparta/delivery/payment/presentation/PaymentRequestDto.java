@@ -14,8 +14,6 @@ public class PaymentRequestDto {
 
     // 결제 승인 요청 (Success Callback용)
     @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     @Schema(description = "결제 승인 요청 (성공 콜백)")
     public static class Approve {
         @Schema(description = "토스 결제 고유 키", example = "payment_key_sample")
@@ -35,8 +33,6 @@ public class PaymentRequestDto {
      * 결제 실패 요청 (Fail Callback용)
      */
     @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Fail {
         @Schema(description = "에러 코드", example = "PAY_PROCESS_CANCELED")
         private String code;
@@ -49,8 +45,6 @@ public class PaymentRequestDto {
      * 결제 취소 요청
      */
     @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     @Schema(description = "결제 취소 요청")
     public static class Cancel {
         @Schema(description = "취소 사유", example = "고객 단순 변심")
