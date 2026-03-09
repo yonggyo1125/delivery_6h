@@ -8,7 +8,7 @@ import org.sparta.delivery.order.domain.OrderStatus;
 import org.sparta.delivery.order.domain.query.OrderQueryRepository;
 import org.sparta.delivery.review.domain.ReviewOrderInfo;
 import org.sparta.delivery.review.domain.service.OrderInfoProvider;
-import org.sparta.delivery.store.domain.ReviewOrderItem;
+import org.sparta.delivery.review.domain.ReviewOrderItem;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

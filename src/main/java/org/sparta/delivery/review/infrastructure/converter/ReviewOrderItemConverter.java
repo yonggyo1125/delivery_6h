@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import lombok.extern.slf4j.Slf4j;
-import org.sparta.delivery.store.domain.ReviewOrderItem;
+import org.sparta.delivery.review.domain.ReviewOrderItem;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;

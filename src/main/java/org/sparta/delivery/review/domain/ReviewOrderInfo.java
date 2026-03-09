@@ -3,7 +3,6 @@ package org.sparta.delivery.review.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
-import org.sparta.delivery.store.domain.ReviewOrderItem;
 
 import java.util.List;
 import java.util.UUID;
