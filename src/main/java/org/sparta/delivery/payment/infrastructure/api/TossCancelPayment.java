@@ -30,7 +30,7 @@ public class TossCancelPayment implements CancelPayment {
         try {
            JsonNode result = restClient.post()
                    .uri(uriBuilder -> uriBuilder
-                           .path("{paymentKey}/cancel")
+                           .path("/{paymentKey}/cancel")
                            .build(paymentKey))
                    .header("Idempotency-Key", idempotencyKey)
                    .body(Map.of("cancelReason", cancelReason))

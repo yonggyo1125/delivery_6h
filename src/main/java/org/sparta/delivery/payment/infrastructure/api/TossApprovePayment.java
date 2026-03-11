@@ -53,7 +53,7 @@ public class TossApprovePayment implements ApprovePayment {
         try {
             JsonNode result = restClient.post()
                     .uri(uriBuilder -> uriBuilder
-                            .path("confirm")
+                            .path("/confirm")
                             .build())
                     .body(
                             Map.of(

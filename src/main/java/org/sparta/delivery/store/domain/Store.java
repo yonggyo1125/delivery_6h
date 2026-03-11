@@ -358,6 +358,7 @@ public class Store extends BaseUserEntity {
     // 리뷰 평균 업데이트(시스템에서 자동 업데이트 되므로 권한 체크 없음)
     public void systemUpdateReviewScore(double score) {
         this.reviewScore = score;
+        this.modifiedBy = "SYSTEM";
     }
 
     /**
